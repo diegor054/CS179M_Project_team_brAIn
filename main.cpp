@@ -24,6 +24,9 @@ int main() {
 
 
 
+
+
+    //MANIFEST CODE
     string shipName = "ShipCase5.txt";
     ifstream fin(shipName);
     if (!fin.is_open()) {
@@ -31,15 +34,21 @@ int main() {
         exit(EXIT_FAILURE);
     }
     string coordinates, weight, description;
-
+    vector<container> containers;
     while (fin >> coordinates) {
         fin >> weight >> description;
-
+        int x = (coordinates.at(1) - 0x30) * 10 + (coordinates.at(2) - 0x30);
+        int y = (coordinates.at(4) - 0x30) * 10 + (coordinates.at(5) - 0x30);
+        int w = stoi(weight.substr(1, 5));
+        containers.emplace_back(x, y, w, description);
     }
     fin.close();
 
-
-
+    //debug
+    for (int i = 0; i < containers.size(); ++i) {
+        cout << "[" << containers.at(i).x << "," << containers.at(i).y << "] "
+             << containers.at(i).weight << "kgs: {" << containers.at(i).desc << "}" << endl; 
+    }
 
 
     return 0;
