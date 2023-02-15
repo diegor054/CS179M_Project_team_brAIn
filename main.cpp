@@ -50,6 +50,11 @@ int main() {
              << containers.at(i).weight << "kgs: {" << containers.at(i).desc << "}" << endl; 
     }
 
+    //debug ascii
+    for (unsigned char c = 32; c != 255; ++c) {
+        cout << "[" << (int)c << "]" << c << endl;
+    }
 
+    //[176]░ [177]▒ [178]▓ [219]█ [254]■
     return 0;
 }
