@@ -56,5 +56,18 @@ int main() {
     }
 
     //[176]░ [177]▒ [178]▓ [219]█ [254]■
+    int rows = 8, columns = 12;
+    string dsc;
+    for (int y = rows; y >= 1; --y) {
+        cout << (char)219;
+        for (unsigned x = 1; x <= columns; ++x) {
+            dsc = containers.at((y - 1) * columns + (x - 1)).desc;
+            if (dsc == "NAN") cout << (char)219;
+            else if (dsc == "UNUSED") cout << (char)32;
+            else cout << (char)178;
+        }
+        cout << (char)219 << endl;
+    }
+    for (int i = 0; i < 14; ++i) cout << (char)219;
     return 0;
 }
