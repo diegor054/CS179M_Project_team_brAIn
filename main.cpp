@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <windows.h>
 
 using namespace std;
 
@@ -18,9 +19,12 @@ void debugManifest(const vector<container>&);
 void debugASCII();
 void printShip(const vector<container>&);
 
+HANDLE console_color = GetStdHandle(STD_OUTPUT_HANDLE);
+
 int main() {
 
-    
+    SetConsoleTextAttribute(console_color, 0x01);
+
     string file = "ShipCase2.txt";
     vector<container> containers;
     readManifest(file, containers);
@@ -28,6 +32,8 @@ int main() {
     debugASCII();
     
     printShip(containers);
+
+    system("PAUSE");
 
     return 0;
 }
@@ -72,7 +78,11 @@ void printShip(const vector<container> &containers) {
             dsc = containers.at((y - 1) * columns + (x - 1)).desc;
             if (dsc == "NAN") cout << (char)219;
             else if (dsc == "UNUSED") cout << (char)32;
-            else cout << (char)178;
+            else {
+                SetConsoleTextAttribute(console_color, 0x04);
+                cout << (char)178;
+                SetConsoleTextAttribute(console_color, 0x01);
+            }
         }
         cout << (char)219 << endl;
     }
