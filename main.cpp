@@ -2,7 +2,6 @@
 #include <fstream>
 #include <string>
 #include <vector>
-//#include <pair>
 
 using namespace std;
 
@@ -14,27 +13,32 @@ struct container {
     container(int x, int y, int w, string d) : x(x), y(y), weight(w), desc(d) { };
 };
 
+void readManifest(const string&, vector<container>&);
+void debugManifest(const vector<container>&);
+void debugASCII();
+void printShip(const vector<container>&);
+
 int main() {
 
+    
+    string file = "ShipCase2.txt";
+    vector<container> containers;
+    readManifest(file, containers);
+    debugManifest(containers);
+    debugASCII();
+    
+    printShip(containers);
 
+    return 0;
+}
 
-
-
-
-
-
-
-
-
-    //MANIFEST CODE
-    string shipName = "ShipCase5.txt";
-    ifstream fin(shipName);
+void readManifest(const string &manifest, vector<container> &containers) {
+    ifstream fin(manifest);
     if (!fin.is_open()) {
-        cout << "Error opening " << shipName << "!" << endl;
+        cout << "Error opening " << manifest << "!" << endl;
         exit(EXIT_FAILURE);
     }
     string coordinates, weight, description;
-    vector<container> containers;
     while (fin >> coordinates) {
         fin >> weight >> description;
         int x = (coordinates.at(1) - 0x30) * 10 + (coordinates.at(2) - 0x30);
@@ -43,18 +47,22 @@ int main() {
         containers.emplace_back(x, y, w, description);
     }
     fin.close();
+}
 
-    //debug
+void debugManifest(const vector<container> &containers) {
     for (int i = 0; i < containers.size(); ++i) {
         cout << "[" << containers.at(i).x << "," << containers.at(i).y << "] "
              << containers.at(i).weight << "kgs: {" << containers.at(i).desc << "}" << endl; 
     }
+}
 
-    //debug ascii
+void debugASCII() {
     for (unsigned char c = 32; c != 255; ++c) {
         cout << "[" << (int)c << "]" << c << endl;
     }
+}
 
+void printShip(const vector<container> &containers) {
     //[176]░ [177]▒ [178]▓ [219]█ [254]■
     int rows = 8, columns = 12;
     string dsc;
@@ -68,6 +76,6 @@ int main() {
         }
         cout << (char)219 << endl;
     }
-    for (int i = 0; i < 14; ++i) cout << (char)219;
-    return 0;
+    for (int i = 0; i < columns + 2; ++i) cout << (char)219;
+    return;
 }
