@@ -20,11 +20,14 @@ void readManifest(const string&, vector<container>&);
 void debugManifest(const vector<container>&);
 void debugASCII();
 void printShip(const vector<container>&);
+void moveContainer(const vector<container>&, int, int, int);
 void timeStamp();
 void logIn();
 string userLoggedIn;  //global variable 
 
 HANDLE console_color = GetStdHandle(STD_OUTPUT_HANDLE);
+
+const int rows = 8, columns = 12;
 
 int main() {
 
@@ -77,7 +80,6 @@ void debugASCII() {
 
 void printShip(const vector<container> &containers) {
     //[176]░ [177]▒ [178]▓ [219]█ [254]■
-    int rows = 8, columns = 12;
     string dsc;
     for (int y = rows; y >= 1; --y) {
         cout << (char)219;
@@ -95,6 +97,32 @@ void printShip(const vector<container> &containers) {
     }
     for (int i = 0; i < columns + 2; ++i) cout << (char)219;
     return;
+}
+
+void moveContainer(const vector<container> &containers, int x, int y, int dir) {
+    //0 = UP, 1 = DOWN, 2 = LEFT, 3 = RIGHT
+    int index = (y - 1) * columns + (x - 1);
+    switch(dir) {
+        case 0:
+            if (y == 1) cout << "Error Up" << endl;
+            //containers.at(index - columns) = containers.at(index);
+            break;
+        case 1:
+            if (y == rows) cout << "Error Down" << endl;
+            //containers.at(index + columns) = containers.at(index);
+            break;
+        case 2:
+            if (x == 1) cout << "Error Left" << endl;
+            //containers.at(index - 1) = containers.at(index);
+            break;
+        case 3:
+            if (x == columns) cout << "Error Right" << endl;
+            //containers.at(index + 1) = containers.at(index);
+            break;
+        default:
+            cout << "Error Unknown" << endl;
+            break;
+    }
 }
 
 
