@@ -2,6 +2,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <ctime>
+#include <fstream>
 #include <windows.h>
 
 using namespace std;
@@ -18,11 +20,16 @@ void readManifest(const string&, vector<container>&);
 void debugManifest(const vector<container>&);
 void debugASCII();
 void printShip(const vector<container>&);
+void timeStamp();
+void logIn();
+string userLoggedIn;  //global variable 
 
 HANDLE console_color = GetStdHandle(STD_OUTPUT_HANDLE);
 
 int main() {
 
+    logIn();
+    timeStamp();
     SetConsoleTextAttribute(console_color, 0x01);
 
     string file = "ShipCase2.txt";
@@ -88,4 +95,49 @@ void printShip(const vector<container> &containers) {
     }
     for (int i = 0; i < columns + 2; ++i) cout << (char)219;
     return;
+}
+
+
+void timeStamp(){
+	time_t curr_time;
+	tm * curr_tm;
+	char date_[100];
+    char date2_[100];
+	char time_[100];
+	
+	time(&curr_time);
+	curr_tm = localtime(&curr_time);
+    string dayType;
+    int day = curr_tm->tm_mday;
+    switch(day%10){
+        case 1:
+        dayType = "st";
+        break;
+
+        case 2:
+        dayType = "nd";
+        break;
+
+        case 3: 
+        dayType= "rd";
+        break;
+
+        default:
+        dayType = "th";
+        break;
+    }
+    strftime(date_, 50, "%B %d", curr_tm);
+    strftime(date2_, 50, " %Y:", curr_tm);
+	strftime(time_, 50, "%H:%M", curr_tm);
+	
+	cout << "[" << date_;
+    cout << dayType << date2_ << " ";
+	cout << time_ << "]" << endl;
+}
+
+void logIn(){
+    cout << "Welcome! Enter your name to log in." << endl;
+    string name;
+    cin >> name;
+    userLoggedIn = name;
 }
