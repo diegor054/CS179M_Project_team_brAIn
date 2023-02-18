@@ -21,7 +21,7 @@ void debugManifest(const vector<container>&);
 void debugASCII();
 void printShip(const vector<container>&);
 void moveContainer(const vector<container>&, int, int, int);
-void timeStamp(ofstream& logFile, string message);
+void log_File(ofstream& logFile, string message);
 void logIn(ofstream& logFile);
 string userLoggedIn;  //global variable 
 
@@ -126,7 +126,7 @@ void moveContainer(const vector<container> &containers, int x, int y, int dir) {
 }
 
 
-void timeStamp(ofstream& logFile, string message){
+void log_File(ofstream& logFile, string message){
 	time_t curr_time;
 	tm * curr_tm;
 	char date_[100];
@@ -171,11 +171,11 @@ void logIn(ofstream& logFile){
 
     if(userLoggedIn != ""){
     string logOutMessage = userLoggedIn + " logged out.";
-    timeStamp(logFile , logOutMessage);
+    log_File(logFile , logOutMessage);
     }
 
     string logInMessage = name +  " logged in.";
-    timeStamp(logFile, logInMessage);
-    
+    log_File(logFile, logInMessage);
+
     userLoggedIn = name;
 }
