@@ -161,14 +161,21 @@ void timeStamp(ofstream& logFile, string message){
 	logFile << "[" << date_;
     logFile << dayType << date2_ << " ";
 	logFile << time_ << "] ";
-    logFile << message;
+    logFile << message << "\n";
 }
 
 void logIn(ofstream& logFile){
     cout << "Welcome! Enter your name to log in." << endl;
     string name;
     cin >> name;
-    string message = name +  " logged in." + "\n";
-    timeStamp(logFile, message);
+
+    if(userLoggedIn != ""){
+    string logOutMessage = userLoggedIn + " logged out.";
+    timeStamp(logFile , logOutMessage);
+    }
+
+    string logInMessage = name +  " logged in.";
+    timeStamp(logFile, logInMessage);
+    
     userLoggedIn = name;
 }
