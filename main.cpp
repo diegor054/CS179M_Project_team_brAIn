@@ -33,7 +33,7 @@ int main() {
     ofstream logFile;
     logFile.open ("log.txt");
     logIn(logFile);
-    logIn(logFile);
+ 
     SetConsoleTextAttribute(console_color, 0x01);
 
     string file = "ShipCase2.txt";
