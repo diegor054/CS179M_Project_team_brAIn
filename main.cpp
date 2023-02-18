@@ -21,8 +21,8 @@ void debugManifest(const vector<container>&);
 void debugASCII();
 void printShip(const vector<container>&);
 void moveContainer(const vector<container>&, int, int, int);
-void timeStamp();
-void logIn();
+void timeStamp(ofstream& logFile, string message);
+void logIn(ofstream& logFile);
 string userLoggedIn;  //global variable 
 
 HANDLE console_color = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -30,9 +30,10 @@ HANDLE console_color = GetStdHandle(STD_OUTPUT_HANDLE);
 const int rows = 8, columns = 12;
 
 int main() {
-
-    logIn();
-    timeStamp();
+    ofstream logFile;
+    logFile.open ("log.txt");
+    logIn(logFile);
+    logIn(logFile);
     SetConsoleTextAttribute(console_color, 0x01);
 
     string file = "ShipCase2.txt";
@@ -42,9 +43,8 @@ int main() {
     debugASCII();
     
     printShip(containers);
-
     system("PAUSE");
-
+    logFile.close();
     return 0;
 }
 
@@ -126,7 +126,7 @@ void moveContainer(const vector<container> &containers, int x, int y, int dir) {
 }
 
 
-void timeStamp(){
+void timeStamp(ofstream& logFile, string message){
 	time_t curr_time;
 	tm * curr_tm;
 	char date_[100];
@@ -158,14 +158,17 @@ void timeStamp(){
     strftime(date2_, 50, " %Y:", curr_tm);
 	strftime(time_, 50, "%H:%M", curr_tm);
 	
-	cout << "[" << date_;
-    cout << dayType << date2_ << " ";
-	cout << time_ << "]" << endl;
+	logFile << "[" << date_;
+    logFile << dayType << date2_ << " ";
+	logFile << time_ << "] ";
+    logFile << message;
 }
 
-void logIn(){
+void logIn(ofstream& logFile){
     cout << "Welcome! Enter your name to log in." << endl;
     string name;
     cin >> name;
+    string message = name +  " logged in." + "\n";
+    timeStamp(logFile, message);
     userLoggedIn = name;
 }
