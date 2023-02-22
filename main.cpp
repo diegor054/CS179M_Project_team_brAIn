@@ -23,6 +23,7 @@ void printShip(const vector<container>&);
 void moveContainer(const vector<container>&, int, int, int);
 void log_File(ofstream& logFile, string message);
 void logIn(ofstream& logFile);
+void menu(ofstream& logFile);
 string userLoggedIn;  //global variable 
 
 HANDLE console_color = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -33,6 +34,7 @@ int main() {
     ofstream logFile;
     logFile.open ("log.txt");
     logIn(logFile);
+    menu(logFile);
  
     SetConsoleTextAttribute(console_color, 0x01);
 
@@ -169,13 +171,50 @@ void logIn(ofstream& logFile){
     string name;
     cin >> name;
 
+    /*
     if(userLoggedIn != ""){
     string logOutMessage = userLoggedIn + " logged out.";
     log_File(logFile , logOutMessage);
     }
+    */
 
     string logInMessage = name +  " logged in.";
     log_File(logFile, logInMessage);
 
     userLoggedIn = name;
+}
+
+void menu(ofstream& logFile) {
+    int option;
+
+    cout << "1. Switch users" << endl;
+    cout << "2. View balance weight" << endl;
+    cout << "3. Load/Unload" << endl;
+    cout << "Enter option: ";
+    cin >> option;
+
+    while(option != 1 && option != 2 && option != 3){
+        cout << "Invalid option. Please try again." << '\n';
+        cin >> option;
+        system("cls");
+        cout << "1. Switch users" << endl;
+        cout << "2. View balance weight" << endl;
+        cout << "3. Load/Unload" << endl;
+        cout << "Enter option: ";
+    }
+
+    switch (option) {
+        case 1: {
+            logIn(logFile);
+            break;
+        }
+        case 2:
+            //balanceShip()
+            break;
+        case 3:
+            //unload_load()
+            break;
+        default:
+            break;
+    }
 }
