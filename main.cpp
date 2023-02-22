@@ -13,7 +13,7 @@ struct container {
     int y;
     int weight;
     string desc;
-    container(int x, int y, int w, string d) : x(x), y(y), weight(w), desc(d) { };
+    container(int y, int x, int w, string d) : y(y), x(x), weight(w), desc(d) { };
 };
 
 void readManifest(const string&, vector<container>&);
@@ -61,13 +61,13 @@ void readManifest(const string &manifest, vector<container> &containers) {
     int numContainers = 0;
     while (fin >> coordinates) {
         fin >> weight >> description;
-        int x = (coordinates.at(1) - 0x30) * 10 + (coordinates.at(2) - 0x30);
-        int y = (coordinates.at(4) - 0x30) * 10 + (coordinates.at(5) - 0x30);
+        int y = (coordinates.at(1) - 0x30) * 10 + (coordinates.at(2) - 0x30);
+        int x = (coordinates.at(4) - 0x30) * 10 + (coordinates.at(5) - 0x30);
         int w = stoi(weight.substr(1, 5));
-        containers.emplace_back(x, y, w, description);
+        containers.emplace_back(y, x, w, description);
         if (description != "NAN" && description != "UNUSED") ++numContainers;
     }
-    string message = "Manifest " + manifest + "is opened, there are " + to_string(numContainers) + " containers on the ship.";
+    string message = "Manifest " + manifest + " is opened, there are " + to_string(numContainers) + " containers on the ship.";
     log_File(logFile, message);
     fin.close();
 }
