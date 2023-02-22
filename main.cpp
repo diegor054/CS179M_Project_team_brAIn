@@ -41,8 +41,8 @@ int main() {
     string file = "ShipCase2.txt";
     vector<container> containers;
     readManifest(file, containers);
-    debugManifest(containers);
-    debugASCII();
+    //debugManifest(containers);
+    //debugASCII();
     
     printShip(containers);
     system("PAUSE");
@@ -167,9 +167,9 @@ void log_File(ofstream& logFile, string message){
 }
 
 void logIn(ofstream& logFile){
-    cout << "Welcome! Enter your name to log in." << endl;
+    cout << "Welcome! Enter your name to log in: " << flush;
     string name;
-    cin >> name;
+    getline(cin, name);
 
     /*
     if(userLoggedIn != ""){
@@ -185,22 +185,16 @@ void logIn(ofstream& logFile){
 }
 
 void menu(ofstream& logFile) {
-    int option;
+    int option = 0;
 
-    cout << "1. Switch users" << endl;
-    cout << "2. View balance weight" << endl;
-    cout << "3. Load/Unload" << endl;
-    cout << "Enter option: ";
-    cin >> option;
-
-    while(option != 1 && option != 2 && option != 3){
-        cout << "Invalid option. Please try again." << '\n';
-        cin >> option;
+    while(option != 1 && option != 2 && option != 3) {
         system("cls");
+        if (option) cout << "Invalid option. Please try again." << '\n';
         cout << "1. Switch users" << endl;
         cout << "2. View balance weight" << endl;
         cout << "3. Load/Unload" << endl;
         cout << "Enter option: ";
+        cin >> option;
     }
 
     switch (option) {
