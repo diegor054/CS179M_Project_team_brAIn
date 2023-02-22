@@ -46,8 +46,12 @@ int main() {
     //debugASCII();
     
     printShip(containers);
-    system("PAUSE");
+
+    //Fix when functionality complete
+    string message = "Finished a Cycle. Manifest fixmeOUTBOUND.txt was written to desktop, and a reminder pop-up to operator to send file was displayed.";
+    log_File(logFile, message);
     logFile.close();
+    system("PAUSE");
     return 0;
 }
 
