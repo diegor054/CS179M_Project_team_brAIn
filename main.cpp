@@ -30,15 +30,16 @@ HANDLE console_color = GetStdHandle(STD_OUTPUT_HANDLE);
 
 const int rows = 8, columns = 12;
 
+ofstream logFile;
+
 int main() {
-    ofstream logFile;
     logFile.open ("log.txt");
     logIn(logFile);
     menu(logFile);
  
     SetConsoleTextAttribute(console_color, 0x01);
 
-    string file = "ShipCase2.txt";
+    string file = "manifests\\ShipCase2.txt";
     vector<container> containers;
     readManifest(file, containers);
     //debugManifest(containers);
@@ -57,13 +58,17 @@ void readManifest(const string &manifest, vector<container> &containers) {
         exit(EXIT_FAILURE);
     }
     string coordinates, weight, description;
+    int numContainers = 0;
     while (fin >> coordinates) {
         fin >> weight >> description;
         int x = (coordinates.at(1) - 0x30) * 10 + (coordinates.at(2) - 0x30);
         int y = (coordinates.at(4) - 0x30) * 10 + (coordinates.at(5) - 0x30);
         int w = stoi(weight.substr(1, 5));
         containers.emplace_back(x, y, w, description);
+        if (description != "NAN" && description != "UNUSED") ++numContainers;
     }
+    string message = "Manifest " + manifest + "is opened, there are " + to_string(numContainers) + " containers on the ship.";
+    log_File(logFile, message);
     fin.close();
 }
 
@@ -169,7 +174,7 @@ void log_File(ofstream& logFile, string message){
 void logIn(ofstream& logFile){
     cout << "Welcome! Enter your name to log in: " << flush;
     string name;
-    getline(cin, name);
+    while(name == "") getline(cin, name);
 
     /*
     if(userLoggedIn != ""){
