@@ -11,6 +11,14 @@ struct container {
     container(int y, int x, int w, string d) : y(y), x(x), weight(w), desc(d) { };
 };
 
+struct node {
+    vector<container> containers;
+    int fn, gn, hn;
+    node(vector<container> c, int g) : containers(c), gn(g) {init();}
+    node(node &n) : containers(n.containers), gn(n.gn + 1) {init();}
+    void init() {hn = get_hn(containers); fn = gn + hn;}
+};
+
 const int rows = 8, columns = 12;
 
 int left_mass(const vector<container>&);
@@ -51,4 +59,11 @@ int right_mass(const vector<container>& containers) {
 
 double deficit(const vector<container>& containers) {
     return abs(left_mass(containers) - right_mass(containers)) / 2.0;
+}
+
+int get_hn(vector<container>& containers) {
+    int hn;
+
+
+    return hn;
 }
