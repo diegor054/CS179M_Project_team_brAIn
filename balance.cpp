@@ -3,6 +3,15 @@
 
 using namespace std;
 
+const int rows = 8, columns = 12;
+
+struct container;
+
+int left_mass(const vector<container>&);
+int right_mass(const vector<container>&);
+double deficit(const vector<container>&);
+int get_hn(vector<container>&);
+
 struct container {
     int y;
     int x;
@@ -18,13 +27,9 @@ struct node {
     node(vector<container> c, int g) : containers(c), gn(g) {init();}
     node(node &n) : containers(n.containers), gn(n.gn + 1) {init();}
     void init() {hn = get_hn(containers); fn = gn + hn;}
-    container getContainer(int y, int x) {return containers.at((y - 1) * columns + (x - 1));}
+    container getContainer(int y, int x) const {return containers.at((y - 1) * columns + (x - 1));}
+    void setContainer(int y, int x, container& c) {containers.at((y - 1) * columns + (x - 1)) = c;}
 };
-
-const int rows = 8, columns = 12;
-
-int left_mass(const vector<container>&);
-int right_mass(const vector<container>&);
 
 int main() {
     container a(1, 1, 98, "a");
