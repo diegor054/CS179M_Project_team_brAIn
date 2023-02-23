@@ -48,3 +48,7 @@ int right_mass(const vector<container>& containers) {
     }
     return mass;
 }
+
+double deficit(const vector<container>& containers) {
+    return abs(left_mass(containers) - right_mass(containers)) / 2.0;
+}
