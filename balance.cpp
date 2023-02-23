@@ -4,11 +4,12 @@
 using namespace std;
 
 struct container {
-    int x;
     int y;
+    int x;
     int weight;
     string desc;
     container(int y, int x, int w, string d) : y(y), x(x), weight(w), desc(d) { };
+    container operator=(container c) {y = c.y; x = c.x; weight = c.weight; desc = c.desc; return c;}
 };
 
 struct node {
@@ -17,6 +18,7 @@ struct node {
     node(vector<container> c, int g) : containers(c), gn(g) {init();}
     node(node &n) : containers(n.containers), gn(n.gn + 1) {init();}
     void init() {hn = get_hn(containers); fn = gn + hn;}
+    container getContainer(int y, int x) {return containers.at((y - 1) * columns + (x - 1));}
 };
 
 const int rows = 8, columns = 12;
