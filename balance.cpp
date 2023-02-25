@@ -38,9 +38,10 @@ struct node {
     int fn, gn, hn;
     int cranePosY = 9;
     int cranePosX = 1;
-    node(vector<vector<container>> c, int g) : containers(c), gn(g) {init();}
-    node(node &n) : containers(n.containers), gn(n.gn + 1) {init();}
-    void init() {hn = get_hn(containers); fn = gn + hn;}
+    int totalTime = 0;
+    node(vector<vector<container>> c, int g) : containers(c), gn(g) {
+        hn = get_hn(containers); fn = gn + hn;
+    }
     string to_string() {
         string n;
         for (const auto& row : containers)
@@ -53,6 +54,7 @@ struct node {
         containers = n.containers;
         cranePosY = n.cranePosY;
         cranePosX = n.cranePosX;
+        totalTime = n.totalTime;
     }
 };
 
