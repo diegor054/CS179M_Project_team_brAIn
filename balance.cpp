@@ -21,6 +21,7 @@ void sift(vector<vector<container>>&);
 vector<node> expand(node&, priority_queue<node>&, map<string, bool>&);
 int find_nearest_column(vector<vector<container>>&, int);
 int top_container(vector<vector<container>>&, int);
+void a_star_search(priority_queue<node>&, vector<node>&);
 
 
 struct container {
@@ -204,5 +205,10 @@ int top_container(vector<vector<container>>& containers, int column) {
 }
 
 
-
-
+void a_star_search(priority_queue<node>& nodes, vector<node>& new_nodes) {
+    for (unsigned i = 0; i < new_nodes.size(); ++i) {
+        //new_nodes[i].set_gn(new_nodes[i].get_gn() + 1);
+        //new_nodes[i].set_hn(heuristic);
+        nodes.push(new_nodes[i]);
+    }
+}
