@@ -36,20 +36,24 @@ struct container {
 struct node {
     vector<vector<container>> containers;
     int fn, gn, hn;
+    int cranePosY = 9;
+    int cranePosX = 1;
     node(vector<vector<container>> c, int g) : containers(c), gn(g) {init();}
     node(node &n) : containers(n.containers), gn(n.gn + 1) {init();}
     void init() {hn = get_hn(containers); fn = gn + hn;}
-    container getContainer(int y, int x) const {return containers.at((y - 1) * columns + (x - 1));}
-    void setContainer(int y, int x, container& c) {containers.at((y - 1) * columns + (x - 1)) = c;}
-
     string to_string() {
-    string n;
-    for (const auto& row : containers) 
-        for (const auto& elem : row)
-            n += (std::to_string(elem.weight) + ",");
-    return n;    
-   }
-
+        string n;
+        for (const auto& row : containers)
+            for (const auto& elem : row)
+                n += (std::to_string(elem.weight) + ",");
+        return n;
+    }
+    node operator=(node n) {
+        fn = n.fn; gn = n.gn; hn = n.hn;
+        containers = n.containers;
+        cranePosY = n.cranePosY;
+        cranePosX = n.cranePosX;
+    }
 };
 
 int main() {
