@@ -134,14 +134,14 @@ void general_search(vector<vector<container>>& containers) {
             return;
         }
         vector<node> new_nodes = expand(curr_state, nodes, explored_states);
-        a_star_search(nodes, new_nodes, heuristic);
+        a_star_search(nodes, new_nodes);
         ++nodes_expanded;
     }
 }
 
 vector<node> expand(node& curr_state, priority_queue<node>& nodes, map<string, bool>& explored_states) {
-    int row = curr_state.get_crane_pos().y;
-    int column = curr_state.get_crane_pos().x;
+    int row = curr_state.cranePosY;
+    int column = curr_state.cranePosX;
     vector<node> new_nodes;
     explored_states[curr_state.to_string()] = true;
     int right_heavier = 6 * (right_mass(curr_state.containers) > left_mass(curr_state.containers));
@@ -174,7 +174,7 @@ int find_nearest_column(vector<vector<container>>& containers, int current_colum
 				highest_container = top_container(containers, j);
         }
 		}
-		int currTime = (highest_container - top_container(containers, current_column) + 1) + (i - current_column) + (highest_container - top_container(i));
+		int currTime = (highest_container - top_container(containers, current_column) + 1) + (i - current_column) + (highest_container - top_container(containers, i));
 		if(currTime < lowestTime){
 			nearestColumn = i;
 			lowestTime = currTime;
@@ -189,7 +189,7 @@ int find_nearest_column(vector<vector<container>>& containers, int current_colum
 				highest_container = top_container(containers, j);
         }
 		}
-		int currTime = (highest_container - top_container(containers, current_column) + 1) + (i - current_column) + (highest_container - top_container(i));
+		int currTime = (highest_container - top_container(containers, current_column) + 1) + (i - current_column) + (highest_container - top_container(containers, i));
 		if(currTime < lowestTime){
 			nearestColumn = i;
 			lowestTime = currTime;
