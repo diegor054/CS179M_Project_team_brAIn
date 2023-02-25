@@ -35,13 +35,16 @@ struct container {
 
 struct node {
     vector<vector<container>> containers;
-    int fn, gn, hn;
+    int gn, hn;
     int cranePosY = 9;
     int cranePosX = 1;
     int totalTime = 0;
-    node(vector<vector<container>> c, int g) : containers(c), gn(g) {
-        hn = get_hn(containers); fn = gn + hn;
-    }
+    node(vector<vector<container>> c) : containers(c) { }
+    int get_fn() const {return gn + hn;} //estimated cost of the cheapest solution that goes through node n
+    int get_gn() const {return gn;} //the cost to get to a node
+    int get_hn() const {return hn;} //the estimated distance to the goal
+    void set_gn(int g) {gn = g;}
+    void set_hn(int h) {hn = h;}
     string to_string() {
         string n;
         for (const auto& row : containers)
@@ -50,7 +53,7 @@ struct node {
         return n;
     }
     node operator=(node n) {
-        fn = n.fn; gn = n.gn; hn = n.hn;
+        gn = n.gn; hn = n.hn;
         containers = n.containers;
         cranePosY = n.cranePosY;
         cranePosX = n.cranePosX;
@@ -108,9 +111,9 @@ void sift(vector<vector<container>>& containers) { }
 
 void general_search(vector<vector<container>>& containers) {
     priority_queue<node> nodes;
-    node initial_state(containers, 0);
-    //initial_state.set_gn(0);
-    //initial_state.set_hn(0);
+    node initial_state(containers);
+    initial_state.set_gn(0);
+    initial_state.set_hn(balance_heuristic(initial_state.containers, initial_state.totalTime));
     nodes.push(initial_state);
     unsigned max_queue_size = 1;
     unsigned nodes_expanded = 0;
@@ -226,8 +229,8 @@ int top_container(vector<vector<container>>& containers, int column) {
 
 void a_star_search(priority_queue<node>& nodes, vector<node>& new_nodes) {
     for (unsigned i = 0; i < new_nodes.size(); ++i) {
-        //new_nodes[i].set_gn(new_nodes[i].get_gn() + 1);
-        //new_nodes[i].set_hn(heuristic);
+        new_nodes[i].set_gn(new_nodes[i].get_gn() + 1);
+        new_nodes[i].set_hn(balance_heuristic(new_nodes[i].containers, new_nodes[i].totalTime));
         nodes.push(new_nodes[i]);
     }
 }
