@@ -231,3 +231,13 @@ void a_star_search(priority_queue<node>& nodes, vector<node>& new_nodes) {
         nodes.push(new_nodes[i]);
     }
 }
+
+int balance_heuristic(vector<vector<container>>& containers, int totalTime) {
+    int heavier_side_weight = left_mass(containers);
+    int lighter_side_weight = right_mass(containers);
+    if (lighter_side_weight > heavier_side_weight) {
+        swap(lighter_side_weight, heavier_side_weight);
+    }
+    int hn_weight = heavier_side_weight * 0.9 - lighter_side_weight;
+    return hn_weight * 0.5 + totalTime * 0.5;
+}
