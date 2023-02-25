@@ -2,6 +2,7 @@
 #include <vector>
 #include <map>
 #include <queue>
+#include <string.h>
 
 
 using namespace std;
@@ -17,6 +18,8 @@ int get_hn(vector<vector<container>>&);
 bool isGoalState(const vector<vector<container>>&);
 void general_search(vector<vector<container>>&);
 void sift(vector<vector<container>>&);
+vector<node> expand(node&, priority_queue<node>&, map<string, bool>&);
+int find_nearest_column(vector<vector<container>>&, int);
 
 
 struct container {
@@ -36,6 +39,15 @@ struct node {
     void init() {hn = get_hn(containers); fn = gn + hn;}
     container getContainer(int y, int x) const {return containers.at((y - 1) * columns + (x - 1));}
     void setContainer(int y, int x, container& c) {containers.at((y - 1) * columns + (x - 1)) = c;}
+
+    string to_string() {
+    string n;
+    for (const auto& row : containers) 
+        for (const auto& elem : row)
+            n += (std::to_string(elem.weight) + ",");
+    return n;    
+   }
+
 };
 
 int main() {
@@ -73,7 +85,7 @@ int right_mass(const vector<vector<container>>& containers) {
     return mass;
 }
 
-double deficit(const vector<container>& containers) {
+double deficit(const vector<vector<container>>& containers) {
     return abs(left_mass(containers) - right_mass(containers)) / 2.0;
 }
 
@@ -118,4 +130,66 @@ void general_search(vector<vector<container>>& containers) {
         ++nodes_expanded;
     }
 }
+
+vector<node> expand(node& curr_state, priority_queue<node>& nodes, map<string, bool>& explored_states) {
+    int row = curr_state.get_crane_pos().y;
+    int column = curr_state.get_crane_pos().x;
+    vector<node> new_nodes;
+    explored_states[curr_state.to_string()] = true;
+    int right_heavier = 6 * (right_mass(curr_state.containers) > left_mass(curr_state.containers));
+    for (int i = 1 + right_heavier; i < 7 + right_heavier; ++i)
+    {
+        node new_node = curr_state;
+        int closest_cell_column = find_nearest_column(new_node.containers,i);
+        int closest_cell_row = top_container(new_node.containers,closest_cell_column);
+        int curr_cell_row = top_container(new_node.containers,i); 
+        container temp = new_node.containers.at(i).at(curr_cell_row);
+        new_node.containers.at(i).at(curr_cell_row) = new_node.containers.at(closest_cell_row).at(closest_cell_column);
+        new_node.containers.at(closest_cell_row).at(closest_cell_column) = temp;
+        if (explored_states[new_node.to_string()] == false) {
+            new_nodes.push_back(new_node);
+        }
+    }
+    return new_nodes;
+}
+
+
+int find_nearest_column(vector<vector<container>>& containers, int current_column) {
+	bool right_heavier = current_column > 6;
+	int lowestTime = INT_MAX;
+	int nearestColumn;
+	if (right_heavier) {
+	for(int i = 6; i >= 1; --i){
+		int highest_container = 0;
+		for (int j = current_column; j >= i; --j) {
+			if (top_container(containers, j) > highest_container) {
+				highest_container = top_container(containers, j);
+        }
+		}
+		int currTime = (highest_container - top_container(containers, current_column) + 1) + (i - current_column) + (highest_container - top_container(i));
+		if(currTime < lowestTime){
+			nearestColumn = i;
+			lowestTime = currTime;
+		}
+    }
+    }
+	else {
+		for(int i = 7; i <= 12; ++i){
+		int highest_container = 0;
+		for (int j = current_column; j <= i; ++j) {
+			if (top_container(containers, j) > highest_container) {
+				highest_container = top_container(containers, j);
+        }
+		}
+		int currTime = (highest_container - top_container(containers, current_column) + 1) + (i - current_column) + (highest_container - top_container(i));
+		if(currTime < lowestTime){
+			nearestColumn = i;
+			lowestTime = currTime;
+		}
+	}
+}
+return nearestColumn;
+}
+
+
 
