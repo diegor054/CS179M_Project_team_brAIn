@@ -151,6 +151,18 @@ vector<node> expand(node& curr_state, priority_queue<node>& nodes, map<string, b
         pair<int,int> p = find_nearest_column(new_node.containers,i);
         int closest_cell_column = p.first;
         int closest_cell_row = top_container(new_node.containers,closest_cell_column);
+        //
+        int highest_container_crane_pass = 0;
+        int lower = min(closest_cell_column, new_node.cranePosX);
+        int upper = max(closest_cell_column, new_node.cranePosX);
+        for (int j = lower; j <= upper; ++j) {
+            if (top_container(new_node.containers, j) > highest_container_crane_pass) {
+               highest_container_crane_pass = top_container(new_node.containers, j);
+            }
+        }
+        new_node.totalTime += (highest_container_crane_pass - new_node.cranePosY + 1) + (upper - lower) + (highest_container_crane_pass - closest_cell_row);
+        //
+        new_node.totalTime += p.second;
         int curr_cell_row = top_container(new_node.containers,i); 
         container temp = new_node.containers.at(i).at(curr_cell_row);
         new_node.containers.at(i).at(curr_cell_row) = new_node.containers.at(closest_cell_row).at(closest_cell_column);
