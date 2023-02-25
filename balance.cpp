@@ -61,6 +61,11 @@ struct node {
     }
 };
 
+// a larger f(n) is worse
+bool operator<(const node& lhs, const node& rhs) {
+    return lhs.get_fn() > rhs.get_fn();
+}
+
 int main() {
     /*
     container a(1, 1, 98, "a");
