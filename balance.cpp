@@ -20,6 +20,7 @@ void general_search(vector<vector<container>>&);
 void sift(vector<vector<container>>&);
 vector<node> expand(node&, priority_queue<node>&, map<string, bool>&);
 int find_nearest_column(vector<vector<container>>&, int);
+int top_container(vector<vector<container>>&, int);
 
 
 struct container {
@@ -190,6 +191,18 @@ int find_nearest_column(vector<vector<container>>& containers, int current_colum
 }
 return nearestColumn;
 }
+
+
+int top_container(vector<vector<container>>& containers, int column) {
+    for (int y = 8; y >= 1; --y) {
+        string desc = containers.at(y - 1).at(column - 1).desc;
+        if (desc != "NAN" && desc != "UNUSED") {
+            return y;
+        }
+    }
+    return 0;
+}
+
 
 
 
