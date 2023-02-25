@@ -170,8 +170,8 @@ vector<node> expand(node& curr_state, priority_queue<node>& nodes, map<string, b
         container temp = new_node.containers.at(i).at(curr_cell_row);
         new_node.containers.at(i).at(curr_cell_row) = new_node.containers.at(closest_cell_row).at(closest_cell_column);
         new_node.containers.at(closest_cell_row).at(closest_cell_column) = temp;
-        new_node.cranePosY = closet_cell_row;
-	    new_node.cranePosX = closet_cell_column;
+        new_node.cranePosY = closest_cell_row;
+	    new_node.cranePosX = closest_cell_column;
 
         if (explored_states[new_node.to_string()] == false) {
             new_nodes.push_back(new_node);
