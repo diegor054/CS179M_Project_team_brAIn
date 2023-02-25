@@ -74,3 +74,9 @@ int get_hn(vector<container>& containers) {
 
     return hn;
 }
+
+bool isGoalState(const vector<container>& containers){
+	if(left_mass(containers) > right_mass(containers))
+		return (deficit(containers) <= left_mass(containers) * 0.1);
+	return (deficit(containers) <= right_mass(containers) * 0.1);
+}
