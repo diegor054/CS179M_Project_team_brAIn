@@ -148,7 +148,8 @@ vector<node> expand(node& curr_state, priority_queue<node>& nodes, map<string, b
     for (int i = 1 + right_heavier; i < 7 + right_heavier; ++i)
     {
         node new_node = curr_state;
-        int closest_cell_column = find_nearest_column(new_node.containers,i);
+        pair<int,int> p = find_nearest_column(new_node.containers,i);
+        int closest_cell_column = p.first;
         int closest_cell_row = top_container(new_node.containers,closest_cell_column);
         int curr_cell_row = top_container(new_node.containers,i); 
         container temp = new_node.containers.at(i).at(curr_cell_row);
