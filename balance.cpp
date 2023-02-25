@@ -19,7 +19,7 @@ bool isGoalState(const vector<vector<container>>&);
 void general_search(vector<vector<container>>&);
 void sift(vector<vector<container>>&);
 vector<node> expand(node&, priority_queue<node>&, map<string, bool>&);
-int find_nearest_column(vector<vector<container>>&, int);
+pair<int,int> find_nearest_column(vector<vector<container>>&, int);
 int top_container(vector<vector<container>>&, int);
 void a_star_search(priority_queue<node>&, vector<node>&);
 
@@ -162,41 +162,41 @@ vector<node> expand(node& curr_state, priority_queue<node>& nodes, map<string, b
 }
 
 
-int find_nearest_column(vector<vector<container>>& containers, int current_column) {
+pair<int,int> find_nearest_column(vector<vector<container>>& containers, int current_column) {
 	bool right_heavier = current_column > 6;
 	int lowestTime = INT_MAX;
 	int nearestColumn;
 	if (right_heavier) {
-	for(int i = 6; i >= 1; --i){
-		int highest_container = 0;
-		for (int j = current_column; j >= i; --j) {
-			if (top_container(containers, j) > highest_container) {
-				highest_container = top_container(containers, j);
+	    for(int i = 6; i >= 1; --i){
+		    int highest_container = 0;
+		    for (int j = current_column; j >= i; --j) {
+			    if (top_container(containers, j) > highest_container) {
+				    highest_container = top_container(containers, j);
+                }
+		    }
+		    int currTime = (highest_container - top_container(containers, current_column) + 1) + (i - current_column) + (highest_container - top_container(containers, i));
+		    if(currTime < lowestTime){
+    			nearestColumn = i;
+	    		lowestTime = currTime;
+		    }
         }
-		}
-		int currTime = (highest_container - top_container(containers, current_column) + 1) + (i - current_column) + (highest_container - top_container(containers, i));
-		if(currTime < lowestTime){
-			nearestColumn = i;
-			lowestTime = currTime;
-		}
-    }
     }
 	else {
 		for(int i = 7; i <= 12; ++i){
-		int highest_container = 0;
-		for (int j = current_column; j <= i; ++j) {
-			if (top_container(containers, j) > highest_container) {
-				highest_container = top_container(containers, j);
-        }
-		}
-		int currTime = (highest_container - top_container(containers, current_column) + 1) + (i - current_column) + (highest_container - top_container(containers, i));
-		if(currTime < lowestTime){
-			nearestColumn = i;
-			lowestTime = currTime;
-		}
-	}
-}
-return nearestColumn;
+		    int highest_container = 0;
+		    for (int j = current_column; j <= i; ++j) {
+			    if (top_container(containers, j) > highest_container) {
+				    highest_container = top_container(containers, j);
+                }
+		    }
+		    int currTime = (highest_container - top_container(containers, current_column) + 1) + (i - current_column) + (highest_container - top_container(containers, i));
+		    if(currTime < lowestTime){
+			    nearestColumn = i;
+			    lowestTime = currTime;
+		    }
+	    }
+    }
+    return pair<int,int>(nearestColumn, lowestTime);
 }
 
 
