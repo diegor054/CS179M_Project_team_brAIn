@@ -156,6 +156,7 @@ vector<node> expand(node& curr_state, priority_queue<node>& nodes, map<string, b
     for (int i = 1 + right_heavier; i < 7 + right_heavier; ++i)
     {
         node new_node = curr_state;
+        if (top_container(new_node.containers, i) == 0) continue; //no container in column
         pair<int,int> p = find_nearest_column(new_node.containers,i);
         int closest_cell_column = p.first;
         int closest_cell_row = top_container(new_node.containers,closest_cell_column);
@@ -193,6 +194,7 @@ pair<int,int> find_nearest_column(vector<vector<container>>& containers, int cur
 	if (right_heavier) {
 	    for(int i = 6; i >= 1; --i){
 		    int highest_container = 0;
+            if (top_container(containers, i) == rows) continue; //cannot put container in full column
 		    for (int j = current_column; j >= i; --j) {
 			    if (top_container(containers, j) > highest_container) {
 				    highest_container = top_container(containers, j);
@@ -208,6 +210,7 @@ pair<int,int> find_nearest_column(vector<vector<container>>& containers, int cur
 	else {
 		for(int i = 7; i <= 12; ++i){
 		    int highest_container = 0;
+            if (top_container(containers, i) == rows) continue; //cannot put container in full column
 		    for (int j = current_column; j <= i; ++j) {
 			    if (top_container(containers, j) > highest_container) {
 				    highest_container = top_container(containers, j);
