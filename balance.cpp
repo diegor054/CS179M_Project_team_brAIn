@@ -20,7 +20,7 @@ int left_mass(const vector<vector<container> >&);
 int right_mass(const vector<vector<container> >&);
 double deficit(const vector<vector<container> >&);
 int get_hn(vector<vector<container> >&);
-bool isGoalState(const vector<vector<container> >&);
+bool isGoalState(const vector<vector<container> >&, const vector<vector<container> >&);
 void general_search(vector<vector<container> >&);
 void sift(vector<vector<container> >&);
 vector<node*> expand(node*, priority_queue<node*>&, map<string, bool>&);
@@ -169,6 +169,7 @@ double deficit(const vector<vector<container> >& containers) {
 }
 
 bool isGoalState(const vector<vector<container> >& containers, const vector<vector<container> >& buffer) {
+    if (!isBufferEmpty(buffer)) return false;
 	if (left_mass(containers) > right_mass(containers)) {
 		return (deficit(containers) <= left_mass(containers) * 0.1);
     }
@@ -214,7 +215,7 @@ void general_search(vector<vector<container> >& containers) {
         nodes.pop();
         printShip(curr_state->containers); //DEBUG REMOVE LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         //cout << "The best state to expand with a g(n) = " << curr_state.get_gn() << " and h(n) = " << curr_state.get_hn() << " is..." << endl;
-        if (isGoalState(containers)) {//FIX goal state needs to account for buffer
+        if (isGoalState(curr_state->containers, curr_state->buffer)) {
             cout << "\nGoal state!\n" << endl;
             //cout << "Solution depth was " << curr_state.get_gn() << endl;
             //cout << "Number of nodes expanded: " << nodes_expanded << endl;
