@@ -4,6 +4,7 @@
 #include <queue>
 #include <string.h>
 #include <fstream>
+#include <windows.h>
 
 using namespace std;
 
@@ -89,18 +90,20 @@ bool operator<(const node& lhs, const node& rhs) {
     return lhs.get_fn() > rhs.get_fn();
 }
 
+HANDLE console_color = GetStdHandle(STD_OUTPUT_HANDLE);
+
 int main() {
-    /*
-    container a(1, 1, 98, "a");
-    container b(1, 2, 1, "b");
-    container c(1, rows, 91, "c");
+
+    SetConsoleTextAttribute(console_color, 0x01);
+
+    string manifest = "manifests\\ShipCase2.txt";
+
     vector<vector<container>> containers;
-    containers.push_back(a);
-    containers.push_back(b);
-    containers.push_back(c);
-    cout << "The left side has a combined mass of " << left_mass(containers) << " kgs." << endl;
-    cout << "The right side has a combined mass of " << right_mass(containers) << " kgs." << endl;
-    */
+
+    readManifest(manifest, containers);
+
+    general_search(containers);
+
     return 0;
 }
 
@@ -124,6 +127,27 @@ void readManifest(const string &manifest, vector<vector<container> >& containers
     //string message = "Manifest " + manifest + " is opened, there are " + to_string(numContainers) + " containers on the ship.";
     //log_File(logFile, message);
     fin.close();
+}
+
+void printShip(const vector<vector<container>>& containers) {
+    //[176]░ [177]▒ [178]▓ [219]█ [254]■
+    string dsc;
+    for (int y = rows; y >= 1; --y) {
+        cout << (char)219;
+        for (unsigned x = 1; x <= columns; ++x) {
+            dsc = containers.at(y - 1).at(x - 1).desc;
+            if (dsc == "NAN") cout << (char)219;
+            else if (dsc == "UNUSED") cout << (char)32;
+            else {
+                SetConsoleTextAttribute(console_color, 0x04);
+                cout << (char)178;
+                SetConsoleTextAttribute(console_color, 0x01);
+            }
+        }
+        cout << (char)219 << endl;
+    }
+    for (int i = 0; i < columns + 2; ++i) cout << (char)219;
+    return;
 }
 
 int left_mass(const vector<vector<container> >& containers) {
@@ -178,8 +202,9 @@ void general_search(vector<vector<container> >& containers) {
         //}
         node* curr_state = nodes.top();
         nodes.pop();
+        printShip(curr_state->containers); //DEBUG REMOVE LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         //cout << "The best state to expand with a g(n) = " << curr_state.get_gn() << " and h(n) = " << curr_state.get_hn() << " is..." << endl;
-        if (isGoalState(containers)) {
+        if (isGoalState(containers)) {//FIX goal state needs to account for buffer
             cout << "\nGoal state!\n" << endl;
             //cout << "Solution depth was " << curr_state.get_gn() << endl;
             //cout << "Number of nodes expanded: " << nodes_expanded << endl;
