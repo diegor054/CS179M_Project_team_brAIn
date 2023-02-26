@@ -216,6 +216,10 @@ vector<node*> expand(node* curr_state, priority_queue<node*>& nodes, map<string,
             new_nodes.push_back(new_node);
         }
     }
+    for(int i = 0; i < new_nodes.size(); ++i){
+        new_nodes.at(i)->parent = curr_state;
+    }
+    curr_state->children = new_nodes;
     return new_nodes;
 }
 
