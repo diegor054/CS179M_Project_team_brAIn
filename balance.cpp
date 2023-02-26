@@ -101,6 +101,7 @@ int main() {
     string manifest = "manifests\\ShipCase2.txt";
 
     vector<vector<container>> containers;
+    for (int i = 0; i < rows; ++i) containers.push_back(vector<container>(columns));
 
     readManifest(manifest, containers);
 
@@ -149,6 +150,7 @@ void printShip(const vector<vector<container>>& containers) {
         cout << (char)219 << endl;
     }
     for (int i = 0; i < columns + 2; ++i) cout << (char)219;
+    cout << endl;
     return;
 }
 
