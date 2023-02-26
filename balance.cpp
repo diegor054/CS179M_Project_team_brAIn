@@ -13,6 +13,9 @@ const int rows = 8, columns = 12;
 struct container;
 struct node;
 
+void readManifest(const string&, vector<vector<container> >&);
+void printShip(const vector<vector<container>>&);
+
 int left_mass(const vector<vector<container> >&);
 int right_mass(const vector<vector<container> >&);
 double deficit(const vector<vector<container> >&);
@@ -26,7 +29,6 @@ pair<int,int> findNearestBufferColumn(vector<vector<container> >&);
 int top_container(vector<vector<container> >&, int);
 void a_star_search(priority_queue<node*>&, vector<node*>&);
 int balance_heuristic(vector<vector<container> >&, int);
-
 
 struct container {
     int weight;
