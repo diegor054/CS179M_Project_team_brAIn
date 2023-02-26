@@ -165,31 +165,45 @@ vector<node> expand(node& curr_state, priority_queue<node>& nodes, map<string, b
     {
         node new_node = curr_state;
         if (top_container(new_node.containers, i) == 0) continue; //no container in column
-        pair<int,int> p = find_nearest_column(new_node.containers,i);
-        int closest_cell_column = p.first;
-        if(closest_cell_column == -1){
-
-        }
-        int closest_cell_row = top_container(new_node.containers,closest_cell_column);
         //
         int highest_container_crane_pass = 0;
-        int lower = min(closest_cell_column, new_node.cranePosX);
-        int upper = max(closest_cell_column, new_node.cranePosX);
+        int lower = min(i, new_node.cranePosX);
+        int upper = max(i, new_node.cranePosX);
         for (int j = lower; j <= upper; ++j) {
             if (top_container(new_node.containers, j) > highest_container_crane_pass) {
                highest_container_crane_pass = top_container(new_node.containers, j);
             }
         }
-        new_node.totalTime += (highest_container_crane_pass - new_node.cranePosY + 1) + (upper - lower) + (highest_container_crane_pass - closest_cell_row);
-        //
-        new_node.totalTime += p.second;
         int curr_cell_row = top_container(new_node.containers,i); 
-        container temp = new_node.containers.at(i).at(curr_cell_row);
-        new_node.containers.at(i).at(curr_cell_row) = new_node.containers.at(closest_cell_row).at(closest_cell_column);
-        new_node.containers.at(closest_cell_row).at(closest_cell_column) = temp;
-        new_node.cranePosY = closest_cell_row;
-	    new_node.cranePosX = closest_cell_column;
-
+        new_node.totalTime += (abs(highest_container_crane_pass - new_node.cranePosY + 1)) + abs(new_node.cranePosX - i) + (highest_container_crane_pass - curr_cell_row);
+        //
+        pair<int,int> p = find_nearest_column(new_node.containers,i);
+        int closest_cell_column = p.first;
+        if(closest_cell_column == -1){
+            pair<int, int> bp = findNearestBufferColumn(new_node.buffer);
+            closest_cell_column = bp.first;
+            int closestBufferRow;
+            for(int j = 1; j <= 4; ++j){
+                if(new_node.buffer.at(j - 1).at(closest_cell_column - 1).desc == "UNUSED"){
+                    closestBufferRow = j;
+                    break;
+                }
+            }
+            new_node.totalTime += bp.second;
+            container temp = new_node.containers.at(i).at(curr_cell_row);
+            new_node.containers.at(i).at(curr_cell_row) = new_node.buffer.at(closestBufferRow).at(closest_cell_column);
+            new_node.buffer.at(closestBufferRow).at(closest_cell_column) = temp;
+            new_node.cranePosY = -1 * closestBufferRow;
+	        new_node.cranePosX = -1 * closest_cell_column;
+        } else{
+            int closest_cell_row = top_container(new_node.containers,closest_cell_column);
+            new_node.totalTime += p.second;
+            container temp = new_node.containers.at(i).at(curr_cell_row);
+            new_node.containers.at(i).at(curr_cell_row) = new_node.containers.at(closest_cell_row).at(closest_cell_column);
+            new_node.containers.at(closest_cell_row).at(closest_cell_column) = temp;
+            new_node.cranePosY = closest_cell_row;
+	        new_node.cranePosX = closest_cell_column;
+        }
         if (explored_states[new_node.to_string()] == false) {
             new_nodes.push_back(new_node);
         }
