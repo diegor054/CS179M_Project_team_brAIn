@@ -3,7 +3,7 @@
 #include <map>
 #include <queue>
 #include <string.h>
-
+#include <fstream>
 
 using namespace std;
 
@@ -102,6 +102,28 @@ int main() {
     cout << "The right side has a combined mass of " << right_mass(containers) << " kgs." << endl;
     */
     return 0;
+}
+
+void readManifest(const string &manifest, vector<vector<container> >& containers) {
+    ifstream fin(manifest);
+    if (!fin.is_open()) {
+        cout << "Error opening " << manifest << "!" << endl;
+        exit(EXIT_FAILURE);
+    }
+    string coordinates, weight, description;
+    int numContainers = 0;
+    while (fin >> coordinates) {
+        fin >> weight >> description;
+        int y = (coordinates.at(1) - 0x30) * 10 + (coordinates.at(2) - 0x30);
+        int x = (coordinates.at(4) - 0x30) * 10 + (coordinates.at(5) - 0x30);
+        int w = stoi(weight.substr(1, 5));
+        containers.at(y - 1).at(x - 1).weight = w;
+        containers.at(y - 1).at(x - 1).desc = description;
+        if (description != "NAN" && description != "UNUSED") ++numContainers;
+    }
+    //string message = "Manifest " + manifest + " is opened, there are " + to_string(numContainers) + " containers on the ship.";
+    //log_File(logFile, message);
+    fin.close();
 }
 
 int left_mass(const vector<vector<container> >& containers) {
