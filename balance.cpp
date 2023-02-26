@@ -21,27 +21,32 @@ void general_search(vector<vector<container> >&);
 void sift(vector<vector<container> >&);
 vector<node> expand(node&, priority_queue<node>&, map<string, bool>&);
 pair<int,int> find_nearest_column(vector<vector<container> >&, int);
+pair<int,int> findNearestBufferColumn(vector<vector<container> >&);
 int top_container(vector<vector<container> >&, int);
 void a_star_search(priority_queue<node>&, vector<node>&);
 int balance_heuristic(vector<vector<container> >&, int);
 
 
 struct container {
-    int y;
-    int x;
     int weight;
     string desc;
-    container(int y, int x, int w, string d) : y(y), x(x), weight(w), desc(d) { };
-    container operator=(container c) {y = c.y; x = c.x; weight = c.weight; desc = c.desc; return c;}
+    container(int w, string d) : weight(w), desc(d) { };
+    container(): weight(0), desc("UNUSED"){};
+    container operator=(container c) { weight = c.weight; desc = c.desc; return c;}
 };
 
 struct node {
     vector<vector<container> > containers;
+    vector<vector<container> > buffer;
     int gn, hn;
     int cranePosY = 9;
     int cranePosX = 1;
     int totalTime = 0;
-    node(vector<vector<container> > c) : containers(c) { }
+    node(vector<vector<container> > c) : containers(c) {
+        for(int i = 0; i < 4; ++i){
+            buffer.push_back(vector<container>(24));
+        }
+    }
     int get_fn() const {return gn + hn;} //estimated cost of the cheapest solution that goes through node n
     int get_gn() const {return gn;} //the cost to get to a node
     int get_hn() const {return hn;} //the estimated distance to the goal
@@ -162,6 +167,9 @@ vector<node> expand(node& curr_state, priority_queue<node>& nodes, map<string, b
         if (top_container(new_node.containers, i) == 0) continue; //no container in column
         pair<int,int> p = find_nearest_column(new_node.containers,i);
         int closest_cell_column = p.first;
+        if(closest_cell_column == -1){
+
+        }
         int closest_cell_row = top_container(new_node.containers,closest_cell_column);
         //
         int highest_container_crane_pass = 0;
@@ -193,7 +201,7 @@ vector<node> expand(node& curr_state, priority_queue<node>& nodes, map<string, b
 pair<int,int> find_nearest_column(vector<vector<container> >& containers, int current_column) {
 	bool right_heavier = current_column > 6;
 	int lowestTime = INT_MAX;
-	int nearestColumn;
+	int nearestColumn = -1;
 	if (right_heavier) {
 	    for(int i = 6; i >= 1; --i){
 		    int highest_container = 0;
@@ -229,6 +237,25 @@ pair<int,int> find_nearest_column(vector<vector<container> >& containers, int cu
     return pair<int,int>(nearestColumn, lowestTime);
 }
 
+pair<int,int> findNearestBufferColumn(vector<vector<container> >& buffer){
+    int nearestColumn = -1;
+    int row = -1;
+    int totalTime = INT_MAX;
+    for(int i = 24; i >= 1; --i){
+        for(int j = 1; j <= 4; ++j){
+            if(buffer.at(j - 1).at(i - 1).desc == "UNUSED"){
+                nearestColumn = i;
+                row = j;
+                break;
+            }
+        }
+        if(nearestColumn != -1){
+            break;
+        }
+    }
+    totalTime = 4 + ((24 - nearestColumn) + (5 - row));
+    return pair<int,int>(nearestColumn, totalTime);
+}
 
 int top_container(vector<vector<container> >& containers, int column) {
     for (int y = 8; y >= 1; --y) {
