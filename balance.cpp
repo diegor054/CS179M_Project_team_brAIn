@@ -38,6 +38,9 @@ struct container {
 struct node {
     vector<vector<container> > containers;
     vector<vector<container> > buffer;
+    string animationMessage;
+    node *parent;
+    vector<node*> children;
     int gn, hn;
     int cranePosY = 9;
     int cranePosX = 1;
@@ -174,7 +177,8 @@ vector<node> expand(node& curr_state, priority_queue<node>& nodes, map<string, b
                highest_container_crane_pass = top_container(new_node.containers, j);
             }
         }
-        int curr_cell_row = top_container(new_node.containers,i); 
+        int curr_cell_row = top_container(new_node.containers,i);
+        new_node.animationMessage = "Moving {" + to_string(curr_cell_row) + "," + to_string(i) + "} " + new_node.containers.at(curr_cell_row - 1).at(i - 1).desc + " to ";   
         new_node.totalTime += (abs(highest_container_crane_pass - new_node.cranePosY + 1)) + abs(new_node.cranePosX - i) + (highest_container_crane_pass - curr_cell_row);
         //
         pair<int,int> p = find_nearest_column(new_node.containers,i);
@@ -195,6 +199,7 @@ vector<node> expand(node& curr_state, priority_queue<node>& nodes, map<string, b
             new_node.buffer.at(closestBufferRow).at(closest_cell_column) = temp;
             new_node.cranePosY = -1 * closestBufferRow;
 	        new_node.cranePosX = -1 * closest_cell_column;
+            new_node.animationMessage += "BUFFER {" + to_string(closestBufferRow) + "," + to_string(closest_cell_column) + "}";
         } else{
             int closest_cell_row = top_container(new_node.containers,closest_cell_column);
             new_node.totalTime += p.second;
@@ -203,6 +208,7 @@ vector<node> expand(node& curr_state, priority_queue<node>& nodes, map<string, b
             new_node.containers.at(closest_cell_row).at(closest_cell_column) = temp;
             new_node.cranePosY = closest_cell_row;
 	        new_node.cranePosX = closest_cell_column;
+            new_node.animationMessage += "SHIP {" + to_string(closest_cell_row) + "," + to_string(closest_cell_column) + "}";
         }
         if (explored_states[new_node.to_string()] == false) {
             new_nodes.push_back(new_node);
