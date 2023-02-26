@@ -267,6 +267,9 @@ vector<node*> expand(node* curr_state, priority_queue<node*>& nodes, map<string,
             new_node->animationMessage += "BUFFER {" + to_string(closestBufferRow) + "," + to_string(closest_cell_column) + "}";
         } else{
             int closest_cell_row = top_container(new_node->containers,closest_cell_column) + 1;
+            if (closest_cell_column == 1 && closest_cell_row == 1) {
+                closest_cell_row = top_container(new_node->containers,closest_cell_column) + 1;
+            }
             new_node->totalTime += p.second;
             container temp = new_node->containers.at(curr_cell_row - 1).at(i - 1);
             new_node->containers.at(curr_cell_row - 1).at(i - 1) = new_node->containers.at(closest_cell_row - 1).at(closest_cell_column - 1);
@@ -349,7 +352,7 @@ pair<int,int> findNearestBufferColumn(vector<vector<container> >& buffer){
 int top_container(vector<vector<container> >& containers, int column) {
     for (int y = 8; y >= 1; --y) {
         string desc = containers.at(y - 1).at(column - 1).desc;
-        if (desc != "NAN" && desc != "UNUSED") {
+        if (desc != "UNUSED") {
             return y;
         }
     }
