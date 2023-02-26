@@ -200,6 +200,8 @@ void general_search(vector<vector<container> >& containers) {
         if (nodes.empty()) {
             cout << "Ship could not be balanced. Beginning SIFT operation." << endl;
             sift(containers);
+            cout << "SIFT operation complete" << endl;
+            return;
         }
         //if (nodes.size() > max_queue_size) {
         //    max_queue_size = nodes.size();
@@ -264,11 +266,11 @@ vector<node*> expand(node* curr_state, priority_queue<node*>& nodes, map<string,
 	        new_node->cranePosX = -1 * closest_cell_column;
             new_node->animationMessage += "BUFFER {" + to_string(closestBufferRow) + "," + to_string(closest_cell_column) + "}";
         } else{
-            int closest_cell_row = top_container(new_node->containers,closest_cell_column);
+            int closest_cell_row = top_container(new_node->containers,closest_cell_column) + 1;
             new_node->totalTime += p.second;
-            container temp = new_node->containers.at(i).at(curr_cell_row);
-            new_node->containers.at(i).at(curr_cell_row) = new_node->containers.at(closest_cell_row).at(closest_cell_column);
-            new_node->containers.at(closest_cell_row).at(closest_cell_column) = temp;
+            container temp = new_node->containers.at(curr_cell_row - 1).at(i - 1);
+            new_node->containers.at(curr_cell_row - 1).at(i - 1) = new_node->containers.at(closest_cell_row - 1).at(closest_cell_column - 1);
+            new_node->containers.at(closest_cell_row - 1).at(closest_cell_column - 1) = temp;
             new_node->cranePosY = closest_cell_row;
 	        new_node->cranePosX = closest_cell_column;
             new_node->animationMessage += "SHIP {" + to_string(closest_cell_row) + "," + to_string(closest_cell_column) + "}";
