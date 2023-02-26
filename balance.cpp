@@ -21,6 +21,7 @@ int right_mass(const vector<vector<container> >&);
 double deficit(const vector<vector<container> >&);
 int get_hn(vector<vector<container> >&);
 bool isGoalState(const vector<vector<container> >&, const vector<vector<container> >&);
+bool isBufferEmpty(const vector<vector<container> >&);
 void general_search(vector<vector<container> >&);
 void sift(vector<vector<container> >&);
 vector<node*> expand(node*, priority_queue<node*>&, map<string, bool>&);
@@ -179,7 +180,7 @@ bool isGoalState(const vector<vector<container> >& containers, const vector<vect
 bool isBufferEmpty(const vector<vector<container> >& buffer) {
     for (int y = 1; y <= 4; ++y) {
         for (int x = 1; x < 24; ++x) {
-            if (buffer.at(y).at(x).desc != "UNUSED") {
+            if (buffer.at(y - 1).at(x - 1).desc != "UNUSED") {
                 return false;
             }
         }
