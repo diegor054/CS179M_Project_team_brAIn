@@ -39,7 +39,7 @@ struct node {
     vector<vector<container> > containers;
     vector<vector<container> > buffer;
     string animationMessage;
-    node *parent;
+    node *parent = nullptr;
     vector<node*> children;
     int gn, hn;
     int cranePosY = 9;
@@ -49,6 +49,16 @@ struct node {
         for(int i = 0; i < 4; ++i){
             buffer.push_back(vector<container>(24));
         }
+    }
+    node(node* n){
+        gn = n->gn; hn = n->hn;
+        containers = n->containers;
+        buffer = n->buffer;
+        cranePosY = n->cranePosY;
+        cranePosX = n->cranePosX;
+        totalTime = n->totalTime;
+        parent = nullptr;
+        children.clear();
     }
     int get_fn() const {return gn + hn;} //estimated cost of the cheapest solution that goes through node n
     int get_gn() const {return gn;} //the cost to get to a node
@@ -168,7 +178,7 @@ vector<node*> expand(node* curr_state, priority_queue<node*>& nodes, map<string,
     int right_heavier = 6 * (right_mass(curr_state->containers) > left_mass(curr_state->containers));
     for (int i = 1 + right_heavier; i < 7 + right_heavier; ++i)
     {
-        node *new_node = curr_state;
+        node *new_node = new node(curr_state);
         if (top_container(new_node->containers, i) == 0) continue; //no container in column
         //
         int highest_container_crane_pass = 0;
