@@ -10,18 +10,20 @@ using namespace std;
 const int rows = 8, columns = 12;
 
 struct container;
+struct node;
 
-int left_mass(const vector<vector<container>>&);
-int right_mass(const vector<vector<container>>&);
-double deficit(const vector<vector<container>>&);
-int get_hn(vector<vector<container>>&);
-bool isGoalState(const vector<vector<container>>&);
-void general_search(vector<vector<container>>&);
-void sift(vector<vector<container>>&);
+int left_mass(const vector<vector<container> >&);
+int right_mass(const vector<vector<container> >&);
+double deficit(const vector<vector<container> >&);
+int get_hn(vector<vector<container> >&);
+bool isGoalState(const vector<vector<container> >&);
+void general_search(vector<vector<container> >&);
+void sift(vector<vector<container> >&);
 vector<node> expand(node&, priority_queue<node>&, map<string, bool>&);
-pair<int,int> find_nearest_column(vector<vector<container>>&, int);
-int top_container(vector<vector<container>>&, int);
+pair<int,int> find_nearest_column(vector<vector<container> >&, int);
+int top_container(vector<vector<container> >&, int);
 void a_star_search(priority_queue<node>&, vector<node>&);
+int balance_heuristic(vector<vector<container> >&, int);
 
 
 struct container {
@@ -34,12 +36,12 @@ struct container {
 };
 
 struct node {
-    vector<vector<container>> containers;
+    vector<vector<container> > containers;
     int gn, hn;
     int cranePosY = 9;
     int cranePosX = 1;
     int totalTime = 0;
-    node(vector<vector<container>> c) : containers(c) { }
+    node(vector<vector<container> > c) : containers(c) { }
     int get_fn() const {return gn + hn;} //estimated cost of the cheapest solution that goes through node n
     int get_gn() const {return gn;} //the cost to get to a node
     int get_hn() const {return hn;} //the estimated distance to the goal
@@ -58,6 +60,7 @@ struct node {
         cranePosY = n.cranePosY;
         cranePosX = n.cranePosX;
         totalTime = n.totalTime;
+        return n;
     }
 };
 
@@ -81,7 +84,7 @@ int main() {
     return 0;
 }
 
-int left_mass(const vector<vector<container>>& containers) {
+int left_mass(const vector<vector<container> >& containers) {
     int mass = 0;
     for (int i = 0; i < rows; ++i) {
             for(int j = 0; j < columns/2; j++){
@@ -91,7 +94,7 @@ int left_mass(const vector<vector<container>>& containers) {
     return mass;
 }
 
-int right_mass(const vector<vector<container>>& containers) {
+int right_mass(const vector<vector<container> >& containers) {
     int mass = 0;
      for (int i = 0; i < rows; ++i) {
             for(int j = columns/2; j < columns; j++){
@@ -101,20 +104,20 @@ int right_mass(const vector<vector<container>>& containers) {
     return mass;
 }
 
-double deficit(const vector<vector<container>>& containers) {
+double deficit(const vector<vector<container> >& containers) {
     return abs(left_mass(containers) - right_mass(containers)) / 2.0;
 }
 
-bool isGoalState(const vector<vector<container>>& containers){
+bool isGoalState(const vector<vector<container> >& containers){
 	if(left_mass(containers) > right_mass(containers))
 		return (deficit(containers) <= left_mass(containers) * 0.1);
 	return (deficit(containers) <= right_mass(containers) * 0.1);
 }
 
-void sift(vector<vector<container>>& containers) { }
+void sift(vector<vector<container> >& containers) { }
 
 
-void general_search(vector<vector<container>>& containers) {
+void general_search(vector<vector<container> >& containers) {
     priority_queue<node> nodes;
     node initial_state(containers);
     initial_state.set_gn(0);
@@ -187,7 +190,7 @@ vector<node> expand(node& curr_state, priority_queue<node>& nodes, map<string, b
 }
 
 
-pair<int,int> find_nearest_column(vector<vector<container>>& containers, int current_column) {
+pair<int,int> find_nearest_column(vector<vector<container> >& containers, int current_column) {
 	bool right_heavier = current_column > 6;
 	int lowestTime = INT_MAX;
 	int nearestColumn;
@@ -227,7 +230,7 @@ pair<int,int> find_nearest_column(vector<vector<container>>& containers, int cur
 }
 
 
-int top_container(vector<vector<container>>& containers, int column) {
+int top_container(vector<vector<container> >& containers, int column) {
     for (int y = 8; y >= 1; --y) {
         string desc = containers.at(y - 1).at(column - 1).desc;
         if (desc != "NAN" && desc != "UNUSED") {
@@ -246,7 +249,7 @@ void a_star_search(priority_queue<node>& nodes, vector<node>& new_nodes) {
     }
 }
 
-int balance_heuristic(vector<vector<container>>& containers, int totalTime) {
+int balance_heuristic(vector<vector<container> >& containers, int totalTime) {
     int heavier_side_weight = left_mass(containers);
     int lighter_side_weight = right_mass(containers);
     if (lighter_side_weight > heavier_side_weight) {
