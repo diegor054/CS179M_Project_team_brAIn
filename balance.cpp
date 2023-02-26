@@ -168,11 +168,22 @@ double deficit(const vector<vector<container> >& containers) {
     return abs(left_mass(containers) - right_mass(containers)) / 2.0;
 }
 
-bool isGoalState(const vector<vector<container> >& containers) { //BUFFER
+bool isGoalState(const vector<vector<container> >& containers, const vector<vector<container> >& buffer) {
 	if (left_mass(containers) > right_mass(containers)) {
 		return (deficit(containers) <= left_mass(containers) * 0.1);
     }
 	return (deficit(containers) <= right_mass(containers) * 0.1);
+}
+
+bool isBufferEmpty(const vector<vector<container> >& buffer) {
+    for (int y = 1; y <= 4; ++y) {
+        for (int x = 1; x < 24; ++x) {
+            if (buffer.at(y).at(x).desc != "UNUSED") {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 void sift(vector<vector<container> >& containers) {
