@@ -19,11 +19,11 @@ int get_hn(vector<vector<container> >&);
 bool isGoalState(const vector<vector<container> >&);
 void general_search(vector<vector<container> >&);
 void sift(vector<vector<container> >&);
-vector<node> expand(node&, priority_queue<node>&, map<string, bool>&);
+vector<node*> expand(node*, priority_queue<node*>&, map<string, bool>&);
 pair<int,int> find_nearest_column(vector<vector<container> >&, int);
 pair<int,int> findNearestBufferColumn(vector<vector<container> >&);
 int top_container(vector<vector<container> >&, int);
-void a_star_search(priority_queue<node>&, vector<node>&);
+void a_star_search(priority_queue<node*>&, vector<node*>&);
 int balance_heuristic(vector<vector<container> >&, int);
 
 
@@ -62,6 +62,7 @@ struct node {
                 n += (std::to_string(elem.weight) + ",");
         return n;
     }
+   /*
     node operator=(node n) {
         gn = n.gn; hn = n.hn;
         containers = n.containers;
@@ -70,6 +71,7 @@ struct node {
         totalTime = n.totalTime;
         return n;
     }
+    */
 };
 
 // a larger f(n) is worse
@@ -126,10 +128,10 @@ void sift(vector<vector<container> >& containers) { }
 
 
 void general_search(vector<vector<container> >& containers) {
-    priority_queue<node> nodes;
-    node initial_state(containers);
-    initial_state.set_gn(0);
-    initial_state.set_hn(balance_heuristic(initial_state.containers, initial_state.totalTime));
+    priority_queue<node*> nodes;
+    node *initial_state = new node(containers);
+    initial_state->set_gn(0);
+    initial_state->set_hn(balance_heuristic(initial_state->containers, initial_state->totalTime));
     nodes.push(initial_state);
     unsigned max_queue_size = 1;
     unsigned nodes_expanded = 0;
@@ -142,7 +144,7 @@ void general_search(vector<vector<container> >& containers) {
         //if (nodes.size() > max_queue_size) {
         //    max_queue_size = nodes.size();
         //}
-        node curr_state = nodes.top();
+        node* curr_state = nodes.top();
         nodes.pop();
         //cout << "The best state to expand with a g(n) = " << curr_state.get_gn() << " and h(n) = " << curr_state.get_hn() << " is..." << endl;
         if (isGoalState(containers)) {
@@ -152,65 +154,65 @@ void general_search(vector<vector<container> >& containers) {
            // cout << "Max queue size: " << max_queue_size << endl;
             return;
         }
-        vector<node> new_nodes = expand(curr_state, nodes, explored_states);
+        vector<node*> new_nodes = expand(curr_state, nodes, explored_states);
         a_star_search(nodes, new_nodes);
         ++nodes_expanded;
     }
 }
 
-vector<node> expand(node& curr_state, priority_queue<node>& nodes, map<string, bool>& explored_states) {
-    int row = curr_state.cranePosY;
-    int column = curr_state.cranePosX;
-    vector<node> new_nodes;
-    explored_states[curr_state.to_string()] = true;
-    int right_heavier = 6 * (right_mass(curr_state.containers) > left_mass(curr_state.containers));
+vector<node*> expand(node* curr_state, priority_queue<node*>& nodes, map<string, bool>& explored_states) {
+    int row = curr_state->cranePosY;
+    int column = curr_state->cranePosX;
+    vector<node*> new_nodes;
+    explored_states[curr_state->to_string()] = true;
+    int right_heavier = 6 * (right_mass(curr_state->containers) > left_mass(curr_state->containers));
     for (int i = 1 + right_heavier; i < 7 + right_heavier; ++i)
     {
-        node new_node = curr_state;
-        if (top_container(new_node.containers, i) == 0) continue; //no container in column
+        node *new_node = curr_state;
+        if (top_container(new_node->containers, i) == 0) continue; //no container in column
         //
         int highest_container_crane_pass = 0;
-        int lower = min(i, new_node.cranePosX);
-        int upper = max(i, new_node.cranePosX);
+        int lower = min(i, new_node->cranePosX);
+        int upper = max(i, new_node->cranePosX);
         for (int j = lower; j <= upper; ++j) {
-            if (top_container(new_node.containers, j) > highest_container_crane_pass) {
-               highest_container_crane_pass = top_container(new_node.containers, j);
+            if (top_container(new_node->containers, j) > highest_container_crane_pass) {
+               highest_container_crane_pass = top_container(new_node->containers, j);
             }
         }
-        int curr_cell_row = top_container(new_node.containers,i);
-        new_node.animationMessage = "Moving {" + to_string(curr_cell_row) + "," + to_string(i) + "} " + new_node.containers.at(curr_cell_row - 1).at(i - 1).desc + " to ";   
-        new_node.totalTime += (abs(highest_container_crane_pass - new_node.cranePosY + 1)) + abs(new_node.cranePosX - i) + (highest_container_crane_pass - curr_cell_row);
+        int curr_cell_row = top_container(new_node->containers,i);
+        new_node->animationMessage = "Moving {" + to_string(curr_cell_row) + "," + to_string(i) + "} " + new_node->containers.at(curr_cell_row - 1).at(i - 1).desc + " to ";   
+        new_node->totalTime += (abs(highest_container_crane_pass - new_node->cranePosY + 1)) + abs(new_node->cranePosX - i) + (highest_container_crane_pass - curr_cell_row);
         //
-        pair<int,int> p = find_nearest_column(new_node.containers,i);
+        pair<int,int> p = find_nearest_column(new_node->containers,i);
         int closest_cell_column = p.first;
         if(closest_cell_column == -1){
-            pair<int, int> bp = findNearestBufferColumn(new_node.buffer);
+            pair<int, int> bp = findNearestBufferColumn(new_node->buffer);
             closest_cell_column = bp.first;
             int closestBufferRow;
             for(int j = 1; j <= 4; ++j){
-                if(new_node.buffer.at(j - 1).at(closest_cell_column - 1).desc == "UNUSED"){
+                if(new_node->buffer.at(j - 1).at(closest_cell_column - 1).desc == "UNUSED"){
                     closestBufferRow = j;
                     break;
                 }
             }
-            new_node.totalTime += bp.second;
-            container temp = new_node.containers.at(i).at(curr_cell_row);
-            new_node.containers.at(i).at(curr_cell_row) = new_node.buffer.at(closestBufferRow).at(closest_cell_column);
-            new_node.buffer.at(closestBufferRow).at(closest_cell_column) = temp;
-            new_node.cranePosY = -1 * closestBufferRow;
-	        new_node.cranePosX = -1 * closest_cell_column;
-            new_node.animationMessage += "BUFFER {" + to_string(closestBufferRow) + "," + to_string(closest_cell_column) + "}";
+            new_node->totalTime += bp.second;
+            container temp = new_node->containers.at(i).at(curr_cell_row);
+            new_node->containers.at(i).at(curr_cell_row) = new_node->buffer.at(closestBufferRow).at(closest_cell_column);
+            new_node->buffer.at(closestBufferRow).at(closest_cell_column) = temp;
+            new_node->cranePosY = -1 * closestBufferRow;
+	        new_node->cranePosX = -1 * closest_cell_column;
+            new_node->animationMessage += "BUFFER {" + to_string(closestBufferRow) + "," + to_string(closest_cell_column) + "}";
         } else{
-            int closest_cell_row = top_container(new_node.containers,closest_cell_column);
-            new_node.totalTime += p.second;
-            container temp = new_node.containers.at(i).at(curr_cell_row);
-            new_node.containers.at(i).at(curr_cell_row) = new_node.containers.at(closest_cell_row).at(closest_cell_column);
-            new_node.containers.at(closest_cell_row).at(closest_cell_column) = temp;
-            new_node.cranePosY = closest_cell_row;
-	        new_node.cranePosX = closest_cell_column;
-            new_node.animationMessage += "SHIP {" + to_string(closest_cell_row) + "," + to_string(closest_cell_column) + "}";
+            int closest_cell_row = top_container(new_node->containers,closest_cell_column);
+            new_node->totalTime += p.second;
+            container temp = new_node->containers.at(i).at(curr_cell_row);
+            new_node->containers.at(i).at(curr_cell_row) = new_node->containers.at(closest_cell_row).at(closest_cell_column);
+            new_node->containers.at(closest_cell_row).at(closest_cell_column) = temp;
+            new_node->cranePosY = closest_cell_row;
+	        new_node->cranePosX = closest_cell_column;
+            new_node->animationMessage += "SHIP {" + to_string(closest_cell_row) + "," + to_string(closest_cell_column) + "}";
         }
-        if (explored_states[new_node.to_string()] == false) {
+        if (explored_states[new_node->to_string()] == false) {
             new_nodes.push_back(new_node);
         }
     }
@@ -288,10 +290,10 @@ int top_container(vector<vector<container> >& containers, int column) {
 }
 
 
-void a_star_search(priority_queue<node>& nodes, vector<node>& new_nodes) {
+void a_star_search(priority_queue<node*>& nodes, vector<node*>& new_nodes) {
     for (unsigned i = 0; i < new_nodes.size(); ++i) {
-        new_nodes[i].set_gn(new_nodes[i].get_gn() + 1);
-        new_nodes[i].set_hn(balance_heuristic(new_nodes[i].containers, new_nodes[i].totalTime));
+        new_nodes[i]->set_gn(new_nodes[i]->get_gn() + 1);
+        new_nodes[i]->set_hn(balance_heuristic(new_nodes[i]->containers, new_nodes[i]->totalTime));
         nodes.push(new_nodes[i]);
     }
 }
