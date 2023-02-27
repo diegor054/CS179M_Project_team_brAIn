@@ -220,9 +220,17 @@ void outputMove(node* n) {
     int endX = endY + 2;
     bool isEndTypeShip = message.at(endY - 3) == 'P';
     startY = message.at(startY) - 0x30;
-    startX = message.at(startX) - 0x30;
+    if(isdigit(message.at(startX + 1))){
+        startX = (message.at(startX) - 0x30) * 10 + (message.at(startX + 1) - 0x30);
+    }else{
+        startX = message.at(startX) - 0x30;
+    }
     endY = message.at(endY) - 0x30;
-    endX = message.at(endX) - 0x30;
+    if(isdigit(message.at(endX + 1))){
+        startX = (message.at(endX) - 0x30) * 10 + (message.at(endX + 1) - 0x30);
+    }else{
+        endX = message.at(endX) - 0x30;
+    }
     vector<vector<container>> containers = n->containers;
     vector<vector<container>> buffer = n->buffer;
     if (isStartTypeShip && isEndTypeShip) {
