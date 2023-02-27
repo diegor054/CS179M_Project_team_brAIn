@@ -39,6 +39,7 @@ pair<int,int> findNearestBufferColumn(vector<vector<container> >&);
 int top_container(vector<vector<container> >&, int);
 int top_container_buffer(vector<vector<container> >& , int);
 int top_container_between(vector<vector<container> >&, int, int);
+int top_container_buffer_between(vector<vector<container> >&, int, int);
 void a_star_search(priority_queue<node*, vector<node*>, CompareNode>&, vector<node*>&);
 int balance_heuristic(vector<vector<container> >&, int);
 
@@ -492,6 +493,17 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
                 new_node->cranePosY = -5;
                 new_node->cranePosX = -24;
             }
+             int highest_container_crane_pass = 0;
+        int lower = min(i, new_node->cranePosX);
+        int upper = max(i, new_node->cranePosX);
+        for (int j = lower; j <= upper; ++j) {
+            if (top_container(new_node->containers, j) > highest_container_crane_pass) {
+               highest_container_crane_pass = top_container(new_node->containers, j);
+            }
+        }
+        int curr_cell_row = top_container(new_node->containers,i);
+        new_node->animationMessage = "Moving BUFFER {" + to_string(curr_cell_row) + "," + to_string(i) + "} " + new_node->containers.at(curr_cell_row - 1).at(i - 1).desc + " to ";   
+        new_node->totalTime += (abs(highest_container_crane_pass - new_node->cranePosY + 1)) + abs(new_node->cranePosX - i) + (highest_container_crane_pass - curr_cell_row);
         }
     }
     for(int i = 0; i < new_nodes.size(); ++i) {
@@ -589,6 +601,18 @@ int top_container_between(vector<vector<container> >& containers, int column1, i
     for (int i = lower; i <= upper; ++i) {
         if (top_container(containers, i) > highest_container) {
             highest_container = top_container(containers, i);
+        }
+    }
+    return highest_container;
+}
+
+int top_container_buffer_between(vector<vector<container> >& buffer, int column1, int column2) {
+    int highest_container = 0;
+    int lower = min(column1, column2);
+    int upper = max(column1, column2);
+    for (int i = lower; i <= upper; ++i) {
+        if (top_container_buffer(buffer, i) > highest_container) {
+            highest_container = top_container_buffer(buffer, i);
         }
     }
     return highest_container;
