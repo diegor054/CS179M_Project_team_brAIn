@@ -386,7 +386,7 @@ int top_container(vector<vector<container> >& containers, int column) {
 
 void a_star_search(priority_queue<node*, vector<node*>, CompareNode>& nodes, vector<node*>& new_nodes) {
     for (unsigned i = 0; i < new_nodes.size(); ++i) {
-        new_nodes[i]->set_gn(new_nodes[i]->get_gn() + 1);
+        new_nodes[i]->set_gn(new_nodes[i]->totalTime);
         new_nodes[i]->set_hn(balance_heuristic(new_nodes[i]->containers, new_nodes[i]->totalTime));
         nodes.push(new_nodes[i]);
     }
