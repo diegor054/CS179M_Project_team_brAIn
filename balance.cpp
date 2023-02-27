@@ -283,14 +283,22 @@ void outputMove(node* n) {
         containers.at(startY - 1).at(startX - 1) = temp;
         //CODE NOT COMPLETE
     }
-    while (!(GetAsyncKeyState(VK_RETURN) & 0x0001)) {
+    bool interrupt = false;
+    while (!interrupt) {
         for (int i = 0; i < containerFrames.size(); ++i) {
+            if (GetAsyncKeyState(VK_RETURN) & 0x0001) {
+                interrupt = true; break;
+            }
             system("CLS");
             cout << message << "\n\n";
             printShip(containerFrames.at(i), bufferFrames.at(i));
             Sleep(200);
         }
+        if (interrupt) break;
         for (int i = containerFrames.size() - 2; i >= 1; --i) {
+            if (GetAsyncKeyState(VK_RETURN) & 0x0001) {
+                interrupt = true; break;
+            }
             system("CLS");
             cout << message << "\n\n";
             printShip(containerFrames.at(i), bufferFrames.at(i));
