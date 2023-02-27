@@ -427,6 +427,11 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
     {
         node *new_node = new node(curr_state);
         if (top_container(new_node->containers, i) == 0) continue; //no container in column
+        if(new_node->cranePosX < 0 || new_node->cranePosY < 0){
+            new_node->totalTime += ( (5 - abs(new_node->cranePosY)) + (24 - abs(new_node->cranePosX)) + 4);
+            new_node->cranePosY = 9;
+            new_node->cranePosX = 1;
+        }
         //
         int highest_container_crane_pass = 0;
         int lower = min(i, new_node->cranePosX);
