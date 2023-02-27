@@ -258,25 +258,26 @@ void outputMove(node* n) {
             containerFrames.push_back(containers);
             bufferFrames.push_back(buffer);
         }
+        int currContainerRow = max(startY, highestContainer + 1);
         if (startX < endX) {
             for (int x = startX; x < endX; ++x) {
-                temp = containers.at(highestContainer).at(x - 1);
-                containers.at(highestContainer).at(x - 1) = containers.at(highestContainer).at(x);
-                containers.at(highestContainer).at(x) = temp;
+                temp = containers.at(currContainerRow - 1).at(x - 1);
+                containers.at(currContainerRow - 1).at(x - 1) = containers.at(currContainerRow - 1).at(x);
+                containers.at(currContainerRow - 1).at(x) = temp;
                 containerFrames.push_back(containers);
                 bufferFrames.push_back(buffer);
             }
         }
         else {
             for (int x = startX; x > endX; --x) {
-                temp = containers.at(highestContainer).at(x - 1);
-                containers.at(highestContainer).at(x - 1) = containers.at(highestContainer).at(x - 2);
-                containers.at(highestContainer).at(x - 2) = temp;
+                temp = containers.at(currContainerRow - 1).at(x - 1);
+                containers.at(currContainerRow - 1).at(x - 1) = containers.at(currContainerRow - 1).at(x - 2);
+                containers.at(currContainerRow - 1).at(x - 2) = temp;
                 containerFrames.push_back(containers);
                 bufferFrames.push_back(buffer);
             }
         }
-        for (int y = highestContainer + 1; y > endY; --y) {
+        for (int y = currContainerRow; y > endY; --y) {
             temp = containers.at(y - 1).at(endX - 1);
             containers.at(y - 1).at(endX - 1) = containers.at(y - 2).at(endX - 1);
             containers.at(y - 2).at(endX - 1) = temp;
