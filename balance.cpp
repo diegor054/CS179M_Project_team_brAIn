@@ -196,17 +196,25 @@ void outputMove(node* n) {
         while (!(GetAsyncKeyState(VK_RETURN) & 0x0001)) Sleep(200);
         return;
     }
-
+    int startY = message.find('{') + 1;
+    int startX = startY + 2;
+    bool isStartTypeShip = message.at(startY - 3) == 'P';
+    int endY = message.find('{', startY);
+    int endX = endY + 2;
+    bool isEndTypeShip = message.at(endY - 3) == 'P';
+    
     while (!(GetAsyncKeyState(VK_RETURN) & 0x0001)) {
         for (int i = 0; i < containerFrames.size(); ++i) {
             system("CLS");
             cout << message << "\n\n";
             printShip(containerFrames.at(i), bufferFrames.at(i));
+            Sleep(200);
         }
         for (int i = containerFrames.size() - 2; i >= 1; --i) {
             system("CLS");
             cout << message << "\n\n";
             printShip(containerFrames.at(i), bufferFrames.at(i));
+            Sleep(200);
         }
     }
     return;
@@ -326,7 +334,7 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
             }
         }
         int curr_cell_row = top_container(new_node->containers,i);
-        new_node->animationMessage = "Moving {" + to_string(curr_cell_row) + "," + to_string(i) + "} " + new_node->containers.at(curr_cell_row - 1).at(i - 1).desc + " to ";   
+        new_node->animationMessage = "Moving SHIP {" + to_string(curr_cell_row) + "," + to_string(i) + "} " + new_node->containers.at(curr_cell_row - 1).at(i - 1).desc + " to ";   
         new_node->totalTime += (abs(highest_container_crane_pass - new_node->cranePosY + 1)) + abs(new_node->cranePosX - i) + (highest_container_crane_pass - curr_cell_row);
         //
         pair<int,int> p = find_nearest_column(new_node->containers,i);
