@@ -4,6 +4,7 @@
 #include <queue>
 #include <string.h>
 #include <fstream>
+#include <algorithm>
 #include <windows.h>
 
 using namespace std;
@@ -33,6 +34,7 @@ bool isGoalState(const vector<vector<container> >&, const vector<vector<containe
 bool isBufferEmpty(const vector<vector<container> >&);
 node* general_search(vector<vector<container> >&);
 void sift(vector<vector<container> >&);
+vector<vector<container>> siftGoalState(vector<vector<container> >&);
 vector<node*> expand(node*, priority_queue<node*, vector<node*>, CompareNode>&, map<string, bool>&);
 pair<int,int> find_nearest_column(vector<vector<container> >&, int);
 pair<int,int> findNearestBufferColumn(vector<vector<container> >&);
@@ -50,6 +52,10 @@ struct container {
     container(int w, string d) : weight(w), desc(d) { };
     container operator=(container c) {weight = c.weight; desc = c.desc; return c;}
 };
+
+bool operator<(const container &lhs, const container &rhs){
+    return lhs.weight < rhs.weight;
+}
 
 struct node {
     vector<vector<container> > containers;
@@ -373,6 +379,36 @@ bool isBufferEmpty(const vector<vector<container> >& buffer) {
 
 void sift(vector<vector<container> >& containers) {
 
+}
+
+vector<vector<container>> siftGoalState(vector<vector<container> >& containers){
+    vector<container> sortedContainers;
+    vector<vector<container>> goalState = containers;
+    for(int i = 0; i < rows; ++i){
+        for(int j = 0; j < columns; ++j){
+            if(containers.at(i).at(j).desc != "NAN" && containers.at(i).at(j).desc != "UNUSED" ){
+                sortedContainers.push_back(containers.at(i).at(j));
+                goalState.at(i).at(j).desc = "UNUSED";
+                goalState.at(i).at(j).weight = 0;
+            }
+        }
+    }
+    sort(sortedContainers.begin(), sortedContainers.end());
+    reverse(sortedContainers.begin(), sortedContainers.end());
+    vector<container>::iterator sortedContainerIterator;
+    sortedContainerIterator = sortedContainers.begin();
+    vector<int> columnsOrder = {6, 7, 5, 8, 4, 9, 3, 10, 2, 11, 1, 12};
+    for(int i = 0; i < rows; ++i){
+        for(int j = 0; j < columnsOrder.size(); ++j){
+            if(goalState.at(i).at(columnsOrder.at(j) - 1).desc == "UNUSED"){
+                goalState.at(i).at(columnsOrder.at(j) - 1) = *sortedContainerIterator;
+                if(++sortedContainerIterator == sortedContainers.end()){
+                    return goalState;
+                }
+            }
+        }
+    }
+    return goalState;
 }
 
 
