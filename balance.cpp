@@ -102,7 +102,7 @@ int main() {
 
     ShowConsoleCursor(false);
 
-    system("pause");
+    //system("pause");
 
     SetConsoleTextAttribute(console_color, defaultColor);
 
@@ -384,7 +384,7 @@ node* general_search(vector<vector<container> >& containers) {
         //}
         node* curr_state = nodes.top();
         nodes.pop();
-        printShip(curr_state->containers, curr_state->buffer); //DEBUG REMOVE LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //printShip(curr_state->containers, curr_state->buffer); //DEBUG REMOVE LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         //cout << "The best state to expand with a g(n) = " << curr_state.get_gn() << " and h(n) = " << curr_state.get_hn() << " is..." << endl;
         if (isGoalState(curr_state->containers, curr_state->buffer)) {
             cout << "\nGoal state!\n" << endl;
