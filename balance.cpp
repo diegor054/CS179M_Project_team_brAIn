@@ -14,6 +14,7 @@ const int defaultColor = 0x08;
 
 struct container;
 struct node;
+class CompareNode;
 
 void readManifest(const string&, vector<vector<container> >&);
 void printShip(const vector<vector<container>>&, const vector<vector<container>>&);
@@ -27,11 +28,11 @@ bool isGoalState(const vector<vector<container> >&, const vector<vector<containe
 bool isBufferEmpty(const vector<vector<container> >&);
 void general_search(vector<vector<container> >&);
 void sift(vector<vector<container> >&);
-vector<node*> expand(node*, priority_queue<node*>&, map<string, bool>&);
+vector<node*> expand(node*, priority_queue<node*, vector<node*>, CompareNode>&, map<string, bool>&);
 pair<int,int> find_nearest_column(vector<vector<container> >&, int);
 pair<int,int> findNearestBufferColumn(vector<vector<container> >&);
 int top_container(vector<vector<container> >&, int);
-void a_star_search(priority_queue<node*>&, vector<node*>&);
+void a_star_search(priority_queue<node*, vector<node*>, CompareNode>&, vector<node*>&);
 int balance_heuristic(vector<vector<container> >&, int);
 
 struct container {
@@ -82,9 +83,12 @@ struct node {
 };
 
 // a larger f(n) is worse
-bool operator<(const node& lhs, const node& rhs) {
-    return lhs.get_fn() > rhs.get_fn();
-}
+class CompareNode {
+ public:
+    bool operator() (const node* lhs, const node* rhs) {
+        return lhs->get_fn() > rhs->get_fn();
+    }
+};
 
 HANDLE console_color = GetStdHandle(STD_OUTPUT_HANDLE);
 
@@ -212,7 +216,7 @@ void sift(vector<vector<container> >& containers) {
 
 
 void general_search(vector<vector<container> >& containers) {
-    priority_queue<node*> nodes;
+    priority_queue<node*, vector<node*>, CompareNode> nodes;
     node *initial_state = new node(containers);
     initial_state->set_gn(0);
     initial_state->set_hn(balance_heuristic(initial_state->containers, initial_state->totalTime));
@@ -247,7 +251,7 @@ void general_search(vector<vector<container> >& containers) {
     }
 }
 
-vector<node*> expand(node* curr_state, priority_queue<node*>& nodes, map<string, bool>& explored_states) {
+vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, CompareNode>& nodes, map<string, bool>& explored_states) {
     vector<node*> new_nodes;
     explored_states[curr_state->to_string()] = true;
     int right_heavier = 6 * (right_mass(curr_state->containers) > left_mass(curr_state->containers));
@@ -380,7 +384,7 @@ int top_container(vector<vector<container> >& containers, int column) {
 }
 
 
-void a_star_search(priority_queue<node*>& nodes, vector<node*>& new_nodes) {
+void a_star_search(priority_queue<node*, vector<node*>, CompareNode>& nodes, vector<node*>& new_nodes) {
     for (unsigned i = 0; i < new_nodes.size(); ++i) {
         new_nodes[i]->set_gn(new_nodes[i]->get_gn() + 1);
         new_nodes[i]->set_hn(balance_heuristic(new_nodes[i]->containers, new_nodes[i]->totalTime));
