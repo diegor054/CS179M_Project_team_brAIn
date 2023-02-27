@@ -200,11 +200,11 @@ void outputMove(node* n) {
     int startY = message.find('{') + 1;
     int startX = startY + 2;
     bool isStartTypeShip = message.at(startY - 3) == 'P';
-    startY = message.at(startY) - 0x30;
-    startX = message.at(startX) - 0x30;
-    int endY = message.find('{', startY);
+    int endY = message.find('{', startY) + 1;
     int endX = endY + 2;
     bool isEndTypeShip = message.at(endY - 3) == 'P';
+    startY = message.at(startY) - 0x30;
+    startX = message.at(startX) - 0x30;
     endY = message.at(endY) - 0x30;
     endX = message.at(endX) - 0x30;
     vector<vector<container>> containers = n->containers;
@@ -213,21 +213,44 @@ void outputMove(node* n) {
         container temp = containers.at(endY - 1).at(endX - 1);
         containers.at(endY - 1).at(endX - 1) = containers.at(startY - 1).at(startX - 1);
         containers.at(startY - 1).at(startX - 1) = temp;
-        int highestContainer = 0;
+        containerFrames.push_back(containers);
+        bufferFrames.push_back(buffer);
+        int highestContainer = top_container_between(containers, startX, endX);
+        for (int y = startY; y <= highestContainer; ++y) {
+            temp = containers.at(y - 1).at(startX - 1);
+            containers.at(y - 1).at(startX - 1) = containers.at(y).at(startX - 1);
+            containers.at(y).at(startX - 1) = temp;
+            containerFrames.push_back(containers);
+            bufferFrames.push_back(buffer);
+        }
+        for (int x = startX; x < endX; ++x) {
+            temp = containers.at(highestContainer).at(x - 1);
+            containers.at(highestContainer).at(x - 1) = containers.at(highestContainer).at(x);
+            containers.at(highestContainer).at(x) = temp;
+            containerFrames.push_back(containers);
+            bufferFrames.push_back(buffer);
+        }
+        for (int y = highestContainer + 1; y > endY; --y) {
+            temp = containers.at(y - 1).at(endX - 1);
+            containers.at(y - 1).at(endX - 1) = containers.at(y - 2).at(endX - 1);
+            containers.at(y - 2).at(endX - 1) = temp;
+            containerFrames.push_back(containers);
+            bufferFrames.push_back(buffer);
+        }
     }
-    if (!isStartTypeShip && isEndTypeShip) {
+    else if (!isStartTypeShip && isEndTypeShip) {
         container temp = containers.at(endY - 1).at(endX - 1);
         containers.at(endY - 1).at(endX - 1) = buffer.at(startY - 1).at(startX - 1);
         buffer.at(startY - 1).at(startX - 1) = temp;
         //CODE NOT COMPLETE
     }
-    if (isStartTypeShip && !isEndTypeShip) {
+    else if (isStartTypeShip && !isEndTypeShip) {
         container temp = buffer.at(endY - 1).at(endX - 1);
         buffer.at(endY - 1).at(endX - 1) = containers.at(startY - 1).at(startX - 1);
         containers.at(startY - 1).at(startX - 1) = temp;
         //CODE NOT COMPLETE
     }
-    if (!isStartTypeShip && !isEndTypeShip) {
+    else if (!isStartTypeShip && !isEndTypeShip) {
         container temp = buffer.at(endY - 1).at(endX - 1);
         buffer.at(endY - 1).at(endX - 1) = containers.at(startY - 1).at(startX - 1);
         containers.at(startY - 1).at(startX - 1) = temp;
