@@ -16,6 +16,8 @@ struct container;
 struct node;
 class CompareNode;
 
+void ShowConsoleCursor(bool);
+
 void readManifest(const string&, vector<vector<container> >&);
 void printShip(const vector<vector<container>>&, const vector<vector<container>>&);
 void printChar(char, int, int);
@@ -98,6 +100,8 @@ HANDLE console_color = GetStdHandle(STD_OUTPUT_HANDLE);
 
 int main() {
 
+    ShowConsoleCursor(false);
+
     system("pause");
 
     SetConsoleTextAttribute(console_color, defaultColor);
@@ -116,6 +120,17 @@ int main() {
     system("pause");
 
     return 0;
+}
+
+void ShowConsoleCursor(bool showFlag)
+{
+    HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    CONSOLE_CURSOR_INFO     cursorInfo;
+
+    GetConsoleCursorInfo(out, &cursorInfo);
+    cursorInfo.bVisible = showFlag; // set the cursor visibility
+    SetConsoleCursorInfo(out, &cursorInfo);
 }
 
 void readManifest(const string &manifest, vector<vector<container> >& containers) {
@@ -215,7 +230,7 @@ void outputMove(node* n) {
         containers.at(startY - 1).at(startX - 1) = temp;
         containerFrames.push_back(containers);
         bufferFrames.push_back(buffer);
-        int highestContainer = top_container_between(containers, startX, endX);
+        int highestContainer = top_container_between(containers, startX + ((startX < endX) ? 1 : -1), endX);
         for (int y = startY; y <= highestContainer; ++y) {
             temp = containers.at(y - 1).at(startX - 1);
             containers.at(y - 1).at(startX - 1) = containers.at(y).at(startX - 1);
@@ -269,6 +284,13 @@ void outputMove(node* n) {
             printShip(containerFrames.at(i), bufferFrames.at(i));
             Sleep(200);
         }
+    }
+    string successMessage = "Success! Moved " + message.substr(7);
+    system("CLS");
+    cout << successMessage << "\n\n";
+    printShip(n->containers, n->buffer);
+    while (!(GetAsyncKeyState(VK_RETURN) & 0x0001)) {
+        Sleep(200);
     }
     return;
 }
