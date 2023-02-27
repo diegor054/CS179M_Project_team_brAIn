@@ -198,6 +198,7 @@ void outputMoves(node* root) {
         outputMove(n);
         n = n->children.at(0);
     }
+    outputMove(n);
     return;
 }
 
@@ -238,12 +239,23 @@ void outputMove(node* n) {
             containerFrames.push_back(containers);
             bufferFrames.push_back(buffer);
         }
-        for (int x = startX; x < endX; ++x) {
-            temp = containers.at(highestContainer).at(x - 1);
-            containers.at(highestContainer).at(x - 1) = containers.at(highestContainer).at(x);
-            containers.at(highestContainer).at(x) = temp;
-            containerFrames.push_back(containers);
-            bufferFrames.push_back(buffer);
+        if (startX < endX) {
+            for (int x = startX; x < endX; ++x) {
+                temp = containers.at(highestContainer).at(x - 1);
+                containers.at(highestContainer).at(x - 1) = containers.at(highestContainer).at(x);
+                containers.at(highestContainer).at(x) = temp;
+                containerFrames.push_back(containers);
+                bufferFrames.push_back(buffer);
+            }
+        }
+        else {
+            for (int x = startX; x > endX; --x) {
+                temp = containers.at(highestContainer).at(x - 1);
+                containers.at(highestContainer).at(x - 1) = containers.at(highestContainer).at(x - 2);
+                containers.at(highestContainer).at(x - 2) = temp;
+                containerFrames.push_back(containers);
+                bufferFrames.push_back(buffer);
+            }
         }
         for (int y = highestContainer + 1; y > endY; --y) {
             temp = containers.at(y - 1).at(endX - 1);
