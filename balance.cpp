@@ -493,17 +493,24 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
                 new_node->cranePosY = -5;
                 new_node->cranePosX = -24;
             }
-             int highest_container_crane_pass = 0;
-        int lower = min(i, new_node->cranePosX);
-        int upper = max(i, new_node->cranePosX);
-        for (int j = lower; j <= upper; ++j) {
-            if (top_container(new_node->containers, j) > highest_container_crane_pass) {
-               highest_container_crane_pass = top_container(new_node->containers, j);
+            int highest_container_crane_pass = top_container_buffer_between(new_node->buffer, i, abs(new_node->cranePosX));
+            int curr_cell_row = top_container_buffer(new_node->buffer,i);
+            new_node->animationMessage = "Moving BUFFER {" + to_string(curr_cell_row) + "," + to_string(i) + "} " + new_node->buffer.at(curr_cell_row - 1).at(i - 1).desc + " to ";   
+            new_node->totalTime += (abs(highest_container_crane_pass - abs(new_node->cranePosY) + 1)) + abs(abs(new_node->cranePosX) - i) + (highest_container_crane_pass - curr_cell_row);
+            
+            for(int j = 1; j <= columns; ++j){
+                int cell_row = top_container(new_node->containers, j) + 1;
+                new_node->totalTime += ((abs(((abs(new_node->cranePosY)) - curr_cell_row)) + abs(((abs(new_node->cranePosX)) - i))) + (((5 - curr_cell_row) + (24 - i))) + 4 + (((9 - cell_row) + (j - 1))));
+                container temp = new_node->buffer.at(curr_cell_row - 1).at(i - 1);
+                new_node->buffer.at(curr_cell_row - 1).at(i - 1) = new_node->containers.at(cell_row - 1).at(j - 1);
+                new_node->containers.at(cell_row - 1).at(j - 1) = temp;
+                new_node->cranePosY = cell_row;
+	            new_node->cranePosX = j;
+                new_node->animationMessage += "SHIP {" + to_string(cell_row) + "," + to_string(j) + "}";
+                if (explored_states[new_node->to_string()] == false) {
+                    new_nodes.push_back(new_node);
+                }
             }
-        }
-        int curr_cell_row = top_container(new_node->containers,i);
-        new_node->animationMessage = "Moving BUFFER {" + to_string(curr_cell_row) + "," + to_string(i) + "} " + new_node->containers.at(curr_cell_row - 1).at(i - 1).desc + " to ";   
-        new_node->totalTime += (abs(highest_container_crane_pass - new_node->cranePosY + 1)) + abs(new_node->cranePosX - i) + (highest_container_crane_pass - curr_cell_row);
         }
     }
     for(int i = 0; i < new_nodes.size(); ++i) {
