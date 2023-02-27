@@ -20,6 +20,9 @@ void readManifest(const string&, vector<vector<container> >&);
 void printShip(const vector<vector<container>>&, const vector<vector<container>>&);
 void printChar(char, int, int);
 
+void outputMoves(node*);
+void outputMove(node*);
+
 int left_mass(const vector<vector<container> >&);
 int right_mass(const vector<vector<container> >&);
 double deficit(const vector<vector<container> >&);
@@ -105,6 +108,10 @@ int main() {
 
     node* solution = general_search(containers);
 
+    outputMoves(solution);
+
+    system("pause");
+
     return 0;
 }
 
@@ -165,6 +172,24 @@ void printChar(char c, int new_color, int old_color) {
     SetConsoleTextAttribute(console_color, new_color);
     cout << c;
     SetConsoleTextAttribute(console_color, old_color);
+}
+
+void outputMoves(node* root) {
+    node* n = root;
+    while (n->children.size()) {
+        outputMove(n);
+        n = n->children.at(0);
+    }
+    return;
+}
+
+void outputMove(node* n) {
+    vector<vector<vector<container>>> containerFrames;
+    vector<vector<vector<container>>> bufferFrames;
+    string message = n->animationMessage;
+    
+    
+    return;
 }
 
 int left_mass(const vector<vector<container> >& containers) {
