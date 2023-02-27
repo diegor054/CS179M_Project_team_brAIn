@@ -26,7 +26,7 @@ double deficit(const vector<vector<container> >&);
 int get_hn(vector<vector<container> >&);
 bool isGoalState(const vector<vector<container> >&, const vector<vector<container> >&);
 bool isBufferEmpty(const vector<vector<container> >&);
-void general_search(vector<vector<container> >&);
+node* general_search(vector<vector<container> >&);
 void sift(vector<vector<container> >&);
 vector<node*> expand(node*, priority_queue<node*, vector<node*>, CompareNode>&, map<string, bool>&);
 pair<int,int> find_nearest_column(vector<vector<container> >&, int);
@@ -103,7 +103,7 @@ int main() {
 
     readManifest(manifest, containers);
 
-    general_search(containers);
+    node* solution = general_search(containers);
 
     return 0;
 }
@@ -215,7 +215,7 @@ void sift(vector<vector<container> >& containers) {
 }
 
 
-void general_search(vector<vector<container> >& containers) {
+node* general_search(vector<vector<container> >& containers) {
     priority_queue<node*, vector<node*>, CompareNode> nodes;
     node *initial_state = new node(containers);
     initial_state->set_gn(0);
@@ -229,7 +229,7 @@ void general_search(vector<vector<container> >& containers) {
             cout << "Ship could not be balanced. Beginning SIFT operation." << endl;
             sift(containers);
             cout << "SIFT operation complete" << endl;
-            return;
+            return nullptr;
         }
         //if (nodes.size() > max_queue_size) {
         //    max_queue_size = nodes.size();
@@ -243,7 +243,19 @@ void general_search(vector<vector<container> >& containers) {
             //cout << "Solution depth was " << curr_state.get_gn() << endl;
             //cout << "Number of nodes expanded: " << nodes_expanded << endl;
             //cout << "Max queue size: " << max_queue_size << endl;
-            return;
+            node* temp = curr_state;
+            node* tempChild = nullptr;
+            while (temp->parent) {
+                tempChild = temp;
+                temp = temp->parent;
+                for (vector<node*>::reverse_iterator it = temp->children.rbegin(); it != temp->children.rend(); ++it) {
+                    if (*it != tempChild) {
+                        delete *it;
+                        temp->children.erase((it+1).base());
+                    }
+                }
+            }
+            return temp;
         }
         vector<node*> new_nodes = expand(curr_state, nodes, explored_states);
         a_star_search(nodes, new_nodes);
