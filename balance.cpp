@@ -37,6 +37,7 @@ vector<node*> expand(node*, priority_queue<node*, vector<node*>, CompareNode>&, 
 pair<int,int> find_nearest_column(vector<vector<container> >&, int);
 pair<int,int> findNearestBufferColumn(vector<vector<container> >&);
 int top_container(vector<vector<container> >&, int);
+int top_container_buffer(vector<vector<container> >& , int);
 int top_container_between(vector<vector<container> >&, int, int);
 void a_star_search(priority_queue<node*, vector<node*>, CompareNode>&, vector<node*>&);
 int balance_heuristic(vector<vector<container> >&, int);
@@ -479,6 +480,17 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
             new_nodes.push_back(new_node);
         }
     }
+    if(!isBufferEmpty(curr_state->buffer)){
+        for (int i = 1; i <= 24; ++i){
+            node *new_node = new node(curr_state);
+            if (top_container(new_node->containers, i) == 0) continue; //no container in column
+            if(new_node->cranePosX < 0 || new_node->cranePosY < 0){
+                new_node->totalTime += ( (5 - abs(new_node->cranePosY)) + (24 - abs(new_node->cranePosX)) + 4);
+                new_node->cranePosY = 9;
+                new_node->cranePosX = 1;
+            }
+        }
+    }
     for(int i = 0; i < new_nodes.size(); ++i) {
         new_nodes.at(i)->parent = curr_state;
     }
@@ -548,6 +560,17 @@ pair<int,int> findNearestBufferColumn(vector<vector<container> >& buffer) {
 
 int top_container(vector<vector<container> >& containers, int column) {
     for (int y = 8; y >= 1; --y) {
+        string desc = containers.at(y - 1).at(column - 1).desc;
+        if (desc != "UNUSED") {
+            return y;
+        }
+    }
+    return 0;
+}
+
+
+int top_container_buffer(vector<vector<container> >& containers, int column) {
+    for (int y = 4; y >= 1; --y) {
         string desc = containers.at(y - 1).at(column - 1).desc;
         if (desc != "UNUSED") {
             return y;
