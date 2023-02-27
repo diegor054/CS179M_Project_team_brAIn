@@ -35,6 +35,7 @@ vector<node*> expand(node*, priority_queue<node*, vector<node*>, CompareNode>&, 
 pair<int,int> find_nearest_column(vector<vector<container> >&, int);
 pair<int,int> findNearestBufferColumn(vector<vector<container> >&);
 int top_container(vector<vector<container> >&, int);
+int top_container_between(vector<vector<container> >&, int, int);
 void a_star_search(priority_queue<node*, vector<node*>, CompareNode>&, vector<node*>&);
 int balance_heuristic(vector<vector<container> >&, int);
 
@@ -199,10 +200,39 @@ void outputMove(node* n) {
     int startY = message.find('{') + 1;
     int startX = startY + 2;
     bool isStartTypeShip = message.at(startY - 3) == 'P';
+    startY = message.at(startY) - 0x30;
+    startX = message.at(startX) - 0x30;
     int endY = message.find('{', startY);
     int endX = endY + 2;
     bool isEndTypeShip = message.at(endY - 3) == 'P';
-    
+    endY = message.at(endY) - 0x30;
+    endX = message.at(endX) - 0x30;
+    vector<vector<container>> containers = n->containers;
+    vector<vector<container>> buffer = n->buffer;
+    if (isStartTypeShip && isEndTypeShip) {
+        container temp = containers.at(endY - 1).at(endX - 1);
+        containers.at(endY - 1).at(endX - 1) = containers.at(startY - 1).at(startX - 1);
+        containers.at(startY - 1).at(startX - 1) = temp;
+        int highestContainer = 0;
+    }
+    if (!isStartTypeShip && isEndTypeShip) {
+        container temp = containers.at(endY - 1).at(endX - 1);
+        containers.at(endY - 1).at(endX - 1) = buffer.at(startY - 1).at(startX - 1);
+        buffer.at(startY - 1).at(startX - 1) = temp;
+        //CODE NOT COMPLETE
+    }
+    if (isStartTypeShip && !isEndTypeShip) {
+        container temp = buffer.at(endY - 1).at(endX - 1);
+        buffer.at(endY - 1).at(endX - 1) = containers.at(startY - 1).at(startX - 1);
+        containers.at(startY - 1).at(startX - 1) = temp;
+        //CODE NOT COMPLETE
+    }
+    if (!isStartTypeShip && !isEndTypeShip) {
+        container temp = buffer.at(endY - 1).at(endX - 1);
+        buffer.at(endY - 1).at(endX - 1) = containers.at(startY - 1).at(startX - 1);
+        containers.at(startY - 1).at(startX - 1) = temp;
+        //CODE NOT COMPLETE
+    }
     while (!(GetAsyncKeyState(VK_RETURN) & 0x0001)) {
         for (int i = 0; i < containerFrames.size(); ++i) {
             system("CLS");
@@ -448,6 +478,17 @@ int top_container(vector<vector<container> >& containers, int column) {
     return 0;
 }
 
+int top_container_between(vector<vector<container> >& containers, int column1, int column2) {
+    int highest_container = 0;
+    int lower = min(column1, column2);
+    int upper = max(column1, column2);
+    for (int i = lower; i <= upper; ++i) {
+        if (top_container(containers, i) > highest_container) {
+            highest_container = top_container(containers, i);
+        }
+    }
+    return highest_container;
+}
 
 void a_star_search(priority_queue<node*, vector<node*>, CompareNode>& nodes, vector<node*>& new_nodes) {
     for (unsigned i = 0; i < new_nodes.size(); ++i) {
