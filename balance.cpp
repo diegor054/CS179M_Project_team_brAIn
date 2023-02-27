@@ -10,11 +10,14 @@ using namespace std;
 
 const int rows = 8, columns = 12;
 
+const int defaultColor = 0x08;
+
 struct container;
 struct node;
 
 void readManifest(const string&, vector<vector<container> >&);
-void printShip(const vector<vector<container>>&);
+void printShip(const vector<vector<container>>&, const vector<vector<container>>&);
+void printChar(char, int, int);
 
 int left_mass(const vector<vector<container> >&);
 int right_mass(const vector<vector<container> >&);
@@ -87,7 +90,7 @@ HANDLE console_color = GetStdHandle(STD_OUTPUT_HANDLE);
 
 int main() {
 
-    SetConsoleTextAttribute(console_color, 0x01);
+    SetConsoleTextAttribute(console_color, defaultColor);
 
     string manifest = "manifests\\ShipCase2.txt";
 
@@ -123,26 +126,41 @@ void readManifest(const string &manifest, vector<vector<container> >& containers
     fin.close();
 }
 
-void printShip(const vector<vector<container>>& containers) {
+void printShip(const vector<vector<container>>& containers, const vector<vector<container>>& buffer) {
     //[176]░ [177]▒ [178]▓ [219]█ [254]■
     string dsc;
+    SetConsoleTextAttribute(console_color, 0x0c);
+    cout << "                       " << char(254) << "    " << char(254) << "\n";
+    SetConsoleTextAttribute(console_color, defaultColor);
     for (int y = rows; y >= 1; --y) {
-        cout << (char)219;
-        for (unsigned x = 1; x <= columns; ++x) {
-            dsc = containers.at(y - 1).at(x - 1).desc;
-            if (dsc == "NAN") cout << (char)219;
-            else if (dsc == "UNUSED") cout << (char)32;
+        for (unsigned x = 1; x <= 24; ++x) {
+            if (y <= 4) {
+                printChar(219, 0x01, defaultColor);
+            }
             else {
-                SetConsoleTextAttribute(console_color, 0x04);
-                cout << (char)178;
-                SetConsoleTextAttribute(console_color, 0x01);
+                dsc = buffer.at(y - 4 - 1).at(x - 1).desc;
+                if (dsc == "UNUSED") cout << (char)176;
+                else printChar(178, 0x04, defaultColor);
             }
         }
-        cout << (char)219 << endl;
+        cout << "    ";
+        for (unsigned x = 1; x <= columns; ++x) {
+            dsc = containers.at(y - 1).at(x - 1).desc;
+            if (dsc == "NAN") printChar(219, 0x01, defaultColor);
+            else if (dsc == "UNUSED") cout << (char)176;
+            else printChar(178, 0x04, defaultColor);
+        }
+        cout << endl;
     }
-    for (int i = 0; i < columns + 2; ++i) cout << (char)219;
+    //for (int i = 0; i < columns + 2; ++i) cout << (char)219;
     cout << endl;
     return;
+}
+
+void printChar(char c, int new_color, int old_color) {
+    SetConsoleTextAttribute(console_color, new_color);
+    cout << c;
+    SetConsoleTextAttribute(console_color, old_color);
 }
 
 int left_mass(const vector<vector<container> >& containers) {
@@ -214,7 +232,7 @@ void general_search(vector<vector<container> >& containers) {
         //}
         node* curr_state = nodes.top();
         nodes.pop();
-        printShip(curr_state->containers); //DEBUG REMOVE LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        printShip(curr_state->containers, curr_state->buffer); //DEBUG REMOVE LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         //cout << "The best state to expand with a g(n) = " << curr_state.get_gn() << " and h(n) = " << curr_state.get_hn() << " is..." << endl;
         if (isGoalState(curr_state->containers, curr_state->buffer)) {
             cout << "\nGoal state!\n" << endl;
