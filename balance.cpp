@@ -85,6 +85,9 @@ struct node {
         for (const auto& row : containers)
             for (const auto& elem : row)
                 n += (std::to_string(elem.weight) + ",");
+        for (const auto& row : buffer)
+            for (const auto& elem : row)
+                n += (std::to_string(elem.weight) + ",");
         return n;
     }
 };
@@ -483,11 +486,11 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
     if(!isBufferEmpty(curr_state->buffer)){
         for (int i = 1; i <= 24; ++i){
             node *new_node = new node(curr_state);
-            if (top_container(new_node->containers, i) == 0) continue; //no container in column
-            if(new_node->cranePosX < 0 || new_node->cranePosY < 0){
-                new_node->totalTime += ( (5 - abs(new_node->cranePosY)) + (24 - abs(new_node->cranePosX)) + 4);
-                new_node->cranePosY = 9;
-                new_node->cranePosX = 1;
+            if (top_container_buffer(new_node->buffer, i) == 0) continue; //no container in column
+            if(new_node->cranePosX > 0 || new_node->cranePosY > 0){
+                new_node->totalTime += ( (9 - new_node->cranePosY) + (new_node->cranePosX - 1) + 4);
+                new_node->cranePosY = -5;
+                new_node->cranePosX = -24;
             }
         }
     }
