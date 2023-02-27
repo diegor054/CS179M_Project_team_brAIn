@@ -97,6 +97,8 @@ HANDLE console_color = GetStdHandle(STD_OUTPUT_HANDLE);
 
 int main() {
 
+    system("pause");
+
     SetConsoleTextAttribute(console_color, defaultColor);
 
     string manifest = "manifests\\ShipCase2.txt";
@@ -187,8 +189,26 @@ void outputMove(node* n) {
     vector<vector<vector<container>>> containerFrames;
     vector<vector<vector<container>>> bufferFrames;
     string message = n->animationMessage;
-    
-    
+    if (message == "") {
+        system("CLS");
+        cout << "Press Enter to begin Balance Operation\n\n";
+        printShip(n->containers, n->buffer);
+        while (!(GetAsyncKeyState(VK_RETURN) & 0x0001)) Sleep(200);
+        return;
+    }
+
+    while (!(GetAsyncKeyState(VK_RETURN) & 0x0001)) {
+        for (int i = 0; i < containerFrames.size(); ++i) {
+            system("CLS");
+            cout << message << "\n\n";
+            printShip(containerFrames.at(i), bufferFrames.at(i));
+        }
+        for (int i = containerFrames.size() - 2; i >= 1; --i) {
+            system("CLS");
+            cout << message << "\n\n";
+            printShip(containerFrames.at(i), bufferFrames.at(i));
+        }
+    }
     return;
 }
 
