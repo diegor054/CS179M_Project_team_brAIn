@@ -79,6 +79,7 @@ struct node {
         cranePosY = n->cranePosY;
         cranePosX = n->cranePosX;
         totalTime = n->totalTime;
+        animationMessage = n->animationMessage;
         parent = nullptr;
         children.clear();
     }
@@ -469,6 +470,7 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
     {
         node *new_node = new node(curr_state);
         if (top_container(new_node->containers, i) == 0) continue; //no container in column
+        int nodesCreated = 0;
         if(new_node->cranePosX < 0 || new_node->cranePosY < 0){
             new_node->totalTime += ( (5 - abs(new_node->cranePosY)) + (24 - abs(new_node->cranePosX)) + 4);
             new_node->cranePosY = 9;
@@ -480,15 +482,31 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
         new_node->animationMessage = "Moving SHIP {" + to_string(curr_cell_row) + "," + to_string(i) + "} " + new_node->containers.at(curr_cell_row - 1).at(i - 1).desc + " to ";   
         new_node->totalTime += (abs(highest_container_crane_pass - new_node->cranePosY + 1)) + abs(new_node->cranePosX - i) + (highest_container_crane_pass - curr_cell_row);
         //
-        pair<int,int> p = find_nearest_column(new_node->containers,i);
-        int closest_cell_column = p.first;
-        if(closest_cell_column == -1) {
+        for(int j = 1; j <= columns; ++j){
+            node *new_node_ship = new node(new_node);
+            if (top_container(new_node_ship->containers, j) == rows) continue; //cannot put container in full column
+            if(j == i) continue;  //moving in the same row, basically moving no where
+            int highest_container = top_container_between(new_node_ship->containers, i, j);
+            new_node_ship->totalTime += (highest_container - top_container(new_node_ship->containers, i) + 1) + (j - i) + (highest_container - top_container(new_node_ship->containers, j));
+            int new_cell_row = top_container(new_node_ship->containers, j) + 1;
+            container temp = new_node_ship->containers.at(curr_cell_row - 1).at(i - 1);
+            new_node_ship->containers.at(curr_cell_row - 1).at(i - 1) = new_node_ship->containers.at(new_cell_row - 1).at(j - 1);
+            new_node_ship->containers.at(new_cell_row - 1).at(j - 1) = temp;
+            new_node_ship->cranePosY = new_cell_row;
+	        new_node_ship->cranePosX = j;
+            new_node_ship->animationMessage += "SHIP {" + to_string(new_cell_row) + "," + to_string(j) + "}";
+            if (explored_states[new_node_ship->to_string()] == false) {
+                new_nodes.push_back(new_node_ship);
+                nodesCreated++;
+            }
+        }
+        if(nodesCreated == 0) {
             pair<int, int> bp = findNearestBufferColumn(new_node->buffer);
-            closest_cell_column = bp.first;
+            int closest_cell_column = bp.first;
             int closestBufferRow;
-            for(int j = 1; j <= 4; ++j){
-                if(new_node->buffer.at(j - 1).at(closest_cell_column - 1).desc == "UNUSED"){
-                    closestBufferRow = j;
+            for(int k = 1; k <= 4; ++k){
+                if(new_node->buffer.at(k - 1).at(closest_cell_column - 1).desc == "UNUSED"){
+                    closestBufferRow = k;
                     break;
                 }
             }
@@ -500,18 +518,9 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
 	        new_node->cranePosX = -1 * closest_cell_column;
             new_node->animationMessage += "BUFFER {" + to_string(closestBufferRow) + "," + to_string(closest_cell_column) + "}";
         }
-        else {
-            int closest_cell_row = top_container(new_node->containers,closest_cell_column) + 1;
-            new_node->totalTime += p.second;
-            container temp = new_node->containers.at(curr_cell_row - 1).at(i - 1);
-            new_node->containers.at(curr_cell_row - 1).at(i - 1) = new_node->containers.at(closest_cell_row - 1).at(closest_cell_column - 1);
-            new_node->containers.at(closest_cell_row - 1).at(closest_cell_column - 1) = temp;
-            new_node->cranePosY = closest_cell_row;
-	        new_node->cranePosX = closest_cell_column;
-            new_node->animationMessage += "SHIP {" + to_string(closest_cell_row) + "," + to_string(closest_cell_column) + "}";
-        }
         if (explored_states[new_node->to_string()] == false) {
             new_nodes.push_back(new_node);
+            nodesCreated++;
         }
     }
     if(!isBufferEmpty(curr_state->buffer)){
