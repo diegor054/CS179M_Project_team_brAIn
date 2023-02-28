@@ -118,7 +118,7 @@ int main() {
 
     SetConsoleTextAttribute(console_color, defaultColor);
 
-    string manifest = "manifests\\ShipCase4.txt";
+    string manifest = "manifests\\ShipCase2.txt";
 
     vector<vector<container>> containers;
     for (int i = 0; i < rows; ++i) containers.push_back(vector<container>(columns));
@@ -511,8 +511,8 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
                 }
             }
             new_node->totalTime += bp.second;
-            container temp = new_node->containers.at(i).at(curr_cell_row);
-            new_node->containers.at(i).at(curr_cell_row) = new_node->buffer.at(closestBufferRow).at(closestBufferColumn - 1);
+            container temp = new_node->containers.at(curr_cell_row - 1).at(i - 1);
+            new_node->containers.at(curr_cell_row - 1).at(i - 1) = new_node->buffer.at(closestBufferRow).at(closestBufferColumn - 1);
             new_node->buffer.at(closestBufferRow).at(closestBufferColumn - 1) = temp;
             new_node->cranePosY = -1 * closestBufferRow;
 	        new_node->cranePosX = -1 * closestBufferColumn;
