@@ -502,21 +502,21 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
         }
         if(nodesCreated == 0) {
             pair<int, int> bp = findNearestBufferColumn(new_node->buffer);
-            int closest_cell_column = bp.first;
+            int closestBufferColumn = bp.first;
             int closestBufferRow;
             for(int k = 1; k <= 4; ++k){
-                if(new_node->buffer.at(k - 1).at(closest_cell_column - 1).desc == "UNUSED"){
+                if(new_node->buffer.at(k - 1).at(closestBufferColumn - 1).desc == "UNUSED"){
                     closestBufferRow = k;
                     break;
                 }
             }
             new_node->totalTime += bp.second;
             container temp = new_node->containers.at(i).at(curr_cell_row);
-            new_node->containers.at(i).at(curr_cell_row) = new_node->buffer.at(closestBufferRow).at(closest_cell_column);
-            new_node->buffer.at(closestBufferRow).at(closest_cell_column) = temp;
+            new_node->containers.at(i).at(curr_cell_row) = new_node->buffer.at(closestBufferRow).at(closestBufferColumn - 1);
+            new_node->buffer.at(closestBufferRow).at(closestBufferColumn - 1) = temp;
             new_node->cranePosY = -1 * closestBufferRow;
-	        new_node->cranePosX = -1 * closest_cell_column;
-            new_node->animationMessage += "BUFFER {" + to_string(closestBufferRow) + "," + to_string(closest_cell_column) + "}";
+	        new_node->cranePosX = -1 * closestBufferColumn;
+            new_node->animationMessage += "BUFFER {" + to_string(closestBufferRow) + "," + to_string(closestBufferColumn) + "}";
         }
         if (explored_states[new_node->to_string()] == false) {
             new_nodes.push_back(new_node);
