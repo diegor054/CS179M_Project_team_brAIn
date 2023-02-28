@@ -487,7 +487,7 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
             if (top_container(new_node_ship->containers, j) == rows) continue; //cannot put container in full column
             if(j == i) continue;  //moving in the same row, basically moving no where
             int highest_container = top_container_between(new_node_ship->containers, i, j);
-            new_node_ship->totalTime += (highest_container - top_container(new_node_ship->containers, i) + 1) + (j - i) + (highest_container - top_container(new_node_ship->containers, j));
+            new_node_ship->totalTime += (highest_container - top_container(new_node_ship->containers, i) + 1) + abs(j - i) + (highest_container - top_container(new_node_ship->containers, j));
             int new_cell_row = top_container(new_node_ship->containers, j) + 1;
             container temp = new_node_ship->containers.at(curr_cell_row - 1).at(i - 1);
             new_node_ship->containers.at(curr_cell_row - 1).at(i - 1) = new_node_ship->containers.at(new_cell_row - 1).at(j - 1);
