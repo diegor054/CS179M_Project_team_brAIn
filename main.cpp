@@ -13,7 +13,7 @@ struct container {
     int y;
     int weight;
     string desc;
-    container(int x, int y, int w, string d) : x(x), y(y), weight(w), desc(d) { };
+    container(int y, int x, int w, string d) : y(y), x(x), weight(w), desc(d) { };
 };
 
 void readManifest(const string&, vector<container>&);
@@ -23,28 +23,35 @@ void printShip(const vector<container>&);
 void moveContainer(const vector<container>&, int, int, int);
 void log_File(ofstream& logFile, string message);
 void logIn(ofstream& logFile);
+void menu(ofstream& logFile);
 string userLoggedIn;  //global variable 
 
 HANDLE console_color = GetStdHandle(STD_OUTPUT_HANDLE);
 
 const int rows = 8, columns = 12;
 
+ofstream logFile;
+
 int main() {
-    ofstream logFile;
     logFile.open ("log.txt");
     logIn(logFile);
+    menu(logFile);
  
     SetConsoleTextAttribute(console_color, 0x01);
 
-    string file = "ShipCase2.txt";
+    string file = "manifests\\ShipCase2.txt";
     vector<container> containers;
     readManifest(file, containers);
-    debugManifest(containers);
-    debugASCII();
+    //debugManifest(containers);
+    //debugASCII();
     
     printShip(containers);
-    system("PAUSE");
+
+    //Fix when functionality complete
+    string message = "Finished a Cycle. Manifest fixmeOUTBOUND.txt was written to desktop, and a reminder pop-up to operator to send file was displayed.";
+    log_File(logFile, message);
     logFile.close();
+    system("PAUSE");
     return 0;
 }
 
@@ -55,13 +62,17 @@ void readManifest(const string &manifest, vector<container> &containers) {
         exit(EXIT_FAILURE);
     }
     string coordinates, weight, description;
+    int numContainers = 0;
     while (fin >> coordinates) {
         fin >> weight >> description;
-        int x = (coordinates.at(1) - 0x30) * 10 + (coordinates.at(2) - 0x30);
-        int y = (coordinates.at(4) - 0x30) * 10 + (coordinates.at(5) - 0x30);
+        int y = (coordinates.at(1) - 0x30) * 10 + (coordinates.at(2) - 0x30);
+        int x = (coordinates.at(4) - 0x30) * 10 + (coordinates.at(5) - 0x30);
         int w = stoi(weight.substr(1, 5));
-        containers.emplace_back(x, y, w, description);
+        containers.emplace_back(y, x, w, description);
+        if (description != "NAN" && description != "UNUSED") ++numContainers;
     }
+    string message = "Manifest " + manifest + " is opened, there are " + to_string(numContainers) + " containers on the ship.";
+    log_File(logFile, message);
     fin.close();
 }
 
@@ -165,17 +176,48 @@ void log_File(ofstream& logFile, string message){
 }
 
 void logIn(ofstream& logFile){
-    cout << "Welcome! Enter your name to log in." << endl;
+    cout << "Welcome! Enter your name to log in: " << flush;
     string name;
-    cin >> name;
+    while(name == "") getline(cin, name);
 
+    /*
     if(userLoggedIn != ""){
     string logOutMessage = userLoggedIn + " logged out.";
     log_File(logFile , logOutMessage);
     }
+    */
 
     string logInMessage = name +  " logged in.";
     log_File(logFile, logInMessage);
 
     userLoggedIn = name;
+}
+
+void menu(ofstream& logFile) {
+    int option = 0;
+
+    while(option != 1 && option != 2 && option != 3) {
+        system("cls");
+        if (option) cout << "Invalid option. Please try again." << '\n';
+        cout << "1. Switch users" << endl;
+        cout << "2. View balance weight" << endl;
+        cout << "3. Load/Unload" << endl;
+        cout << "Enter option: ";
+        cin >> option;
+    }
+
+    switch (option) {
+        case 1: {
+            logIn(logFile);
+            break;
+        }
+        case 2:
+            //balanceShip()
+            break;
+        case 3:
+            //unload_load()
+            break;
+        default:
+            break;
+    }
 }
