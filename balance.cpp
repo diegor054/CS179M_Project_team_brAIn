@@ -117,7 +117,7 @@ int main() {
 
     SetConsoleTextAttribute(console_color, defaultColor);
 
-    string manifest = "manifests\\ShipCase2.txt";
+    string manifest = "manifests\\ShipCase4.txt";
 
     vector<vector<container>> containers;
     for (int i = 0; i < rows; ++i) containers.push_back(vector<container>(columns));
@@ -475,14 +475,7 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
             new_node->cranePosX = 1;
         }
         //
-        int highest_container_crane_pass = 0;
-        int lower = min(i, new_node->cranePosX);
-        int upper = max(i, new_node->cranePosX);
-        for (int j = lower; j <= upper; ++j) {
-            if (top_container(new_node->containers, j) > highest_container_crane_pass) {
-               highest_container_crane_pass = top_container(new_node->containers, j);
-            }
-        }
+        int highest_container_crane_pass = top_container_between(new_node->containers, i, new_node->cranePosX);
         int curr_cell_row = top_container(new_node->containers,i);
         new_node->animationMessage = "Moving SHIP {" + to_string(curr_cell_row) + "," + to_string(i) + "} " + new_node->containers.at(curr_cell_row - 1).at(i - 1).desc + " to ";   
         new_node->totalTime += (abs(highest_container_crane_pass - new_node->cranePosY + 1)) + abs(new_node->cranePosX - i) + (highest_container_crane_pass - curr_cell_row);
