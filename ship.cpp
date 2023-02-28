@@ -307,3 +307,242 @@ vector<int> Ship::find_num_containers(){
     values.push_back(values.size());
     return values;
 }
+
+vector<pair<int,int>> Ship::find_container_location(){
+	// NEED TO IMPLEMENT
+}
+
+int Ship::find_nearest_col(){
+    // for each container, find the distance to next avalible column
+    //probably retrun an int (the column number)
+
+    int column = 0;
+    string tmp = ret_larger_side();
+    vector<vector<Container*>> p = grid;
+    if(tmp == "right"){
+        for(int j = (p.at(0).size()/2)-1; j > 0; j--){
+            for(int i = 0; i < p.size(); ++i){
+                if(p.at(i).at(j)->weight == -1){
+                    return j;
+                }
+            }
+        }
+    }
+    else if(tmp == "left"){
+        for(int j = p.at(0).size()/2; j < p.at(0).size(); ++j){
+            for(int i = 0; i < p.size(); ++i){
+                if(p.at(i).at(j)->weight == -1){
+                    return j;
+                }
+            }
+        }
+    }
+    return column;
+}
+
+
+
+void Ship::calculate_hn(){
+    int empty_check = 0;
+    empty_check = empty_check + find_mass_left();
+    empty_check = empty_check + find_mass_right();
+    if(empty_check == 0){
+        hn = 0;
+        fn = hn + gn;
+        return;
+    }
+    vector<int> values = find_num_containers(); // remeber the last number is the number we need to move
+
+    vector<pair<int,int>> loc = find_container_location();
+
+    int nearest = find_nearest_col();
+
+    int sum = 0;
+
+    for(int i = 0; i < values.size(); i++){
+        for(int j = 0; j < loc.size(); j++){
+            if(values.at(i) == grid.at(loc.at(j).first).at(loc.at(j).second)->weight){
+                sum = sum + abs(nearest - loc.at(j).second);
+            }
+        }
+    }
+
+    hn = sum;
+    fn = hn + gn;
+}
+
+void Ship::trickleDown(){
+    bool leave = false;
+    pair<int,int> swapIdx;
+    for(int i = 0; i < 12; ++i){
+        for(int j = 7; j > -1; --j){
+            if(grid[j][i]->weight > -1 && j != 7){
+                int k = j + 1;
+                int row = j, column = i;
+                if(grid[k][column]->weight > -1){continue;}
+                while(k < 8){
+                    if(grid[k][column]->weight > -1 || grid[k][column]->weight == -2){break;}
+                    swap(grid[row][column], grid[k][column]);
+                    row = k;
+                    k++;
+                }
+            }
+        }
+    }
+}
+
+void Ship::removeContainer(Container* c){
+    for(int i = 0; i < 8; ++i){
+        for(int j = 0; j < 12; ++j){
+            if(grid[i][j]->weight == c->weight && grid[i][j]->contents == c->contents){
+                grid[i][j] = new Container(0, "UNUSED");
+                setUniqueKey();
+                return;
+            }
+        }
+    }
+}
+
+void Ship::addContainer(Container* c, int column){
+    if(column < 0){
+        for(int i = 0; i < 8; ++i){
+            for(int j = 0; j < 12; ++j){
+                if(grid[i][j]->weight == -1){
+                    grid[i][j] = new Container(c->weight, c->contents);
+                    setUniqueKey();
+                    return;
+                }
+            }
+        }
+    }
+    else{
+        for(int i = 0; i < 8; ++i){
+            if(grid[i][column]->weight == -1){
+                grid[i][column] = new Container(c->weight, c->contents);
+                setUniqueKey();
+                return;
+            }
+        }
+    }
+}
+
+vector<vector<Container*>> Ship::getGrid(){
+    return this->grid;
+}
+
+void Ship::setGrid(vector<vector<Container*>> g){
+    this->grid = g;
+}
+
+string Ship::outputMoves(Ship* parent, Ship* child) {
+    string result = "";
+    bool ifFound = false;
+    bool b = true;
+
+    for(int i = 0; i < parent->grid.size(); i++) {
+        for(int j = 0; j < parent->grid.at(i).size(); j++) {
+            if (parent->grid.at(i).at(j) != child->grid.at(i).at(j) && parent->grid.at(i).at(j)->weight > -1) {
+                result += "Move container from row " + to_string(i+1) + " and column " + to_string(j+1) + "\n";
+                ifFound = true;
+                break;
+            }
+        }
+        if(ifFound == true) {
+            break;
+        }
+    }
+    if(!ifFound){
+        result += "Container from buffer/truck \n";
+    }
+    ifFound = false;
+    for(int i = 0; i < child->grid.size(); i++) {
+        for(int j = 0; j < child->grid.at(i).size(); j++) {
+            if (parent->grid.at(i).at(j) != child->grid.at(i).at(j) && child->grid.at(i).at(j)->weight > -1) {
+                result += "to row " + to_string(i+1) + " and column " + to_string(j+1) + "\n";
+                ifFound = true;
+                break;
+            }
+        }
+        if(ifFound == true) {
+            break;
+        }
+    }
+    if(!ifFound){
+        if (b) {
+            result += " to a truck.\n";
+            b = !b;
+        } else {
+            result += " to the buffer.\n";
+        }
+    }
+    return result;
+}
+
+bool unloadAndLoadAlgorithm(vector<pair<int,int>> idxs, Ship* p, vector<Container*> c){
+    vector<vector<Container*>> buffer = intializeBuf();
+    Ship *temp = p;
+    vector<Ship*> steps;
+    temp->trickleDown();
+    steps.push_back(new Ship(temp));
+    for(int i = 0; i < idxs.size(); ++i){
+        vector<pair<Ship*, Container*>> tmp = temp->unloadContainer(idxs, i);
+        for(int j = 0; j < tmp.size(); ++j){
+            if(tmp.at(j).first == NULL && tmp.at(j).second == NULL){continue;}
+            else if(tmp.at(j).first == NULL && tmp.at(j).second != NULL){continue;}
+            else{
+                temp = new Ship(tmp.at(j).first);
+                temp->trickleDown();
+                steps.push_back(new Ship(temp));
+            }
+        }
+
+        for(int k = 0; k < tmp.size(); ++k){
+            if(tmp.at(k).first == NULL && tmp.at(k).second == NULL && k == tmp.size()-1){ //container to load
+                vector<vector<Container*>> g = temp->getGrid();
+                temp->trickleDown();
+                steps.push_back(new Ship(temp));
+                temp->removeContainer(g[idxs[i].first][idxs[i].second]);
+                steps.push_back(new Ship(temp));
+            }
+            else if(tmp.at(k).first == NULL && tmp.at(k).second != NULL){ //container to buffer
+                moveToBuffer(buffer, tmp.at(k).second);
+                temp->trickleDown();
+                temp->removeContainer(tmp.at(k).second);
+            }
+        }
+        idxs.erase(idxs.begin()+i);
+        --i;
+    }
+    pair<int, int> emptyBuffer = bufferEmpty(buffer);
+    while(emptyBuffer.first != -1){
+        temp->addContainer(buffer[emptyBuffer.first][emptyBuffer.second], -1);
+        temp->trickleDown();
+        steps.push_back(new Ship(temp));
+        removeFromBuffer(buffer, emptyBuffer);
+        emptyBuffer = bufferEmpty(buffer);
+    }
+    for(int i = 0; i < steps.size()-1; ++i){
+        if(compare(steps.at(i),steps.at(i+1))){
+            steps.erase(steps.begin()+i);
+            --i;
+        }
+    }
+
+    for(int i = 0; i < c.size(); ++i){
+        Container *loadingContainer = new Container(c.at(i)->weight, c.at(i)->contents);
+        int n = availableColumn(idxs);
+        temp->addContainer(loadingContainer, n);
+        temp->trickleDown();
+        steps.push_back(new Ship(temp));
+    }
+
+    for(int i = steps.size()-1; i > 0; --i){
+        steps[i]->setParent(steps[i-1]);
+    }
+    steps.at(0)->setParent(NULL);
+    moves = outputGoalSteps(steps.at(steps.size()-1));
+    times = estimatedTime(steps.at(steps.size()-1), c);
+    this->goal = steps.at(steps.size()-1);
+    emit loadAndUnloadFinished(true);
+    return true;
+}
