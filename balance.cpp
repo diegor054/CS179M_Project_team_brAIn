@@ -171,14 +171,15 @@ void readManifest(const string &manifest, vector<vector<container> >& containers
 void printShip(const vector<vector<container>>& containers, const vector<vector<container>>& buffer, int outsideContainerColumn) {
     //[176]░ [177]▒ [178]▓ [219]█ [254]■
     string bufferRow5 = "                       ", shipRow9 = "           \n";
-    if (outsideContainerColumn < 0) {
+    if (outsideContainerColumn < 0 && outsideContainerColumn != -24) {
         bufferRow5.at(abs(outsideContainerColumn) - 1) = char(178);
     }
     if (outsideContainerColumn > 1) {
         shipRow9.at(outsideContainerColumn - 1 - 1) = char(178);
     }
     printString(bufferRow5, 0x04, defaultColor);
-    printChar(254, 0x0c, defaultColor);
+    if (outsideContainerColumn == -24) printChar(178, 0x04, defaultColor);
+    else printChar(254, 0x0c, defaultColor);
     cout << "    ";
     if (outsideContainerColumn == 1) printChar(178, 0x04, defaultColor);
     else printChar(254, 0x0c, defaultColor);
@@ -343,7 +344,7 @@ void outputMove(node* n) {
             topRowContainerColumns.push_back(0);
         }
         temp = buffer.at(4 - 1).at(startX - 1);
-        buffer.at(8 - 1).at(startX - 1) = container();
+        buffer.at(4 - 1).at(startX - 1) = container();
         containerFrames.push_back(containers);
         bufferFrames.push_back(buffer);
         topRowContainerColumns.push_back(-startX);
@@ -544,7 +545,7 @@ bool isGoalState(const vector<vector<container> >& containers, const vector<vect
 
 bool isBufferEmpty(const vector<vector<container> >& buffer) {
     for (int y = 1; y <= 4; ++y) {
-        for (int x = 1; x < 24; ++x) {
+        for (int x = 1; x <= 24; ++x) {
             if (buffer.at(y - 1).at(x - 1).desc != "UNUSED") {
                 return false;
             }
@@ -708,16 +709,18 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
             new_node->totalTime += (abs(highest_container_crane_pass - abs(new_node->cranePosY) + 1)) + abs(abs(new_node->cranePosX) - i) + (highest_container_crane_pass - curr_cell_row);
             
             for(int j = 1; j <= columns; ++j){
-                int cell_row = top_container(new_node->containers, j) + 1;
-                new_node->totalTime += ((abs(((abs(new_node->cranePosY)) - curr_cell_row)) + abs(((abs(new_node->cranePosX)) - i))) + (((5 - curr_cell_row) + (24 - i))) + 4 + (((9 - cell_row) + (j - 1))));
-                container temp = new_node->buffer.at(curr_cell_row - 1).at(i - 1);
-                new_node->buffer.at(curr_cell_row - 1).at(i - 1) = new_node->containers.at(cell_row - 1).at(j - 1);
-                new_node->containers.at(cell_row - 1).at(j - 1) = temp;
-                new_node->cranePosY = cell_row;
-	            new_node->cranePosX = j;
-                new_node->animationMessage += "SHIP {" + to_string(cell_row) + "," + to_string(j) + "}";
-                if (explored_states[new_node->to_string()] == false) {
-                    new_nodes.push_back(new_node);
+                node *new_node_ship = new node(new_node);
+                if (top_container(new_node_ship->containers, j) == rows) continue; //cannot put container in full column
+                int cell_row = top_container(new_node_ship->containers, j) + 1;
+                new_node_ship->totalTime += ((abs(((abs(new_node_ship->cranePosY)) - curr_cell_row)) + abs(((abs(new_node_ship->cranePosX)) - i))) + (((5 - curr_cell_row) + (24 - i))) + 4 + (((9 - cell_row) + (j - 1))));
+                container temp = new_node_ship->buffer.at(curr_cell_row - 1).at(i - 1);
+                new_node_ship->buffer.at(curr_cell_row - 1).at(i - 1) = new_node_ship->containers.at(cell_row - 1).at(j - 1);
+                new_node_ship->containers.at(cell_row - 1).at(j - 1) = temp;
+                new_node_ship->cranePosY = cell_row;
+	            new_node_ship->cranePosX = j;
+                new_node_ship->animationMessage += "SHIP {" + to_string(cell_row) + "," + to_string(j) + "}";
+                if (explored_states[new_node_ship->to_string()] == false) {
+                    new_nodes.push_back(new_node_ship);
                 }
             }
         }
