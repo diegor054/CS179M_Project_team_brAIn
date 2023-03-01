@@ -22,7 +22,7 @@ void ShowConsoleCursor(bool);
 void readManifest(const string&, vector<vector<container> >&);
 void printShip(const vector<vector<container>>&, const vector<vector<container>>&, int);
 void printChar(char, int, int);
-void printString(string& s, int, int);
+void printString(string&, int, int);
 
 void outputMoves(node*);
 void outputMove(node*);
@@ -119,7 +119,7 @@ int main() {
 
     SetConsoleTextAttribute(console_color, defaultColor);
 
-    string manifest = "manifests\\ShipCaseZ5.txt";
+    string manifest = "manifests\\ShipCaseZ1.txt";
 
     vector<vector<container>> containers;
     for (int i = 0; i < rows; ++i) containers.push_back(vector<container>(columns));
@@ -256,7 +256,7 @@ void outputMove(node* n) {
     }
     endY = message.at(endY) - 0x30;
     if(isdigit(message.at(endX + 1))){
-        startX = (message.at(endX) - 0x30) * 10 + (message.at(endX + 1) - 0x30);
+        endX = (message.at(endX) - 0x30) * 10 + (message.at(endX + 1) - 0x30);
     }else{
         endX = message.at(endX) - 0x30;
     }
@@ -644,6 +644,7 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
     {
         node *new_node = new node(curr_state);
         if (top_container(new_node->containers, i) == 0) continue; //no container in column
+        if (new_node->containers.at(top_container(new_node->containers, i) - 1).at(i - 1).desc == "UNUSED") continue; //no container in column
         int nodesCreated = 0;
         if(new_node->cranePosX < 0 || new_node->cranePosY < 0){
             new_node->totalTime += ( (5 - abs(new_node->cranePosY)) + (24 - abs(new_node->cranePosX)) + 4);
@@ -677,17 +678,12 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
         if(nodesCreated == 0) {
             pair<int, int> bp = findNearestBufferColumn(new_node->buffer);
             int closestBufferColumn = bp.first;
-            int closestBufferRow;
-            for(int k = 1; k <= 4; ++k){
-                if(new_node->buffer.at(k - 1).at(closestBufferColumn - 1).desc == "UNUSED"){
-                    closestBufferRow = k;
-                    break;
-                }
-            }
+            int closestBufferRow = top_container_buffer(new_node->buffer, closestBufferColumn) + 1;
             new_node->totalTime += bp.second;
+            printShip(new_node->containers, new_node->buffer, 0);
             container temp = new_node->containers.at(curr_cell_row - 1).at(i - 1);
-            new_node->containers.at(curr_cell_row - 1).at(i - 1) = new_node->buffer.at(closestBufferRow).at(closestBufferColumn - 1);
-            new_node->buffer.at(closestBufferRow).at(closestBufferColumn - 1) = temp;
+            new_node->containers.at(curr_cell_row - 1).at(i - 1) = new_node->buffer.at(closestBufferRow - 1).at(closestBufferColumn - 1);
+            new_node->buffer.at(closestBufferRow - 1).at(closestBufferColumn - 1) = temp;
             new_node->cranePosY = -1 * closestBufferRow;
 	        new_node->cranePosX = -1 * closestBufferColumn;
             new_node->animationMessage += "BUFFER {" + to_string(closestBufferRow) + "," + to_string(closestBufferColumn) + "}";
@@ -804,9 +800,9 @@ int top_container(vector<vector<container> >& containers, int column) {
 }
 
 
-int top_container_buffer(vector<vector<container> >& containers, int column) {
+int top_container_buffer(vector<vector<container> >& buffer, int column) {
     for (int y = 4; y >= 1; --y) {
-        string desc = containers.at(y - 1).at(column - 1).desc;
+        string desc = buffer.at(y - 1).at(column - 1).desc;
         if (desc != "UNUSED") {
             return y;
         }
