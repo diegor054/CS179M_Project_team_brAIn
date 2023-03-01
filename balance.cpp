@@ -331,7 +331,44 @@ void outputMove(node* n) {
         container temp = containers.at(endY - 1).at(endX - 1);
         containers.at(endY - 1).at(endX - 1) = buffer.at(startY - 1).at(startX - 1);
         buffer.at(startY - 1).at(startX - 1) = temp;
-        //CODE NOT COMPLETE
+        containerFrames.push_back(containers);
+        bufferFrames.push_back(buffer);
+        topRowContainerColumns.push_back(0);
+        for (int y = startY; y < 4; ++y) {
+            temp = buffer.at(y - 1).at(startX - 1);
+            buffer.at(y - 1).at(startX - 1) = buffer.at(y).at(startX - 1);
+            buffer.at(y).at(startX - 1) = temp;
+            containerFrames.push_back(containers);
+            bufferFrames.push_back(buffer);
+            topRowContainerColumns.push_back(0);
+        }
+        temp = buffer.at(4 - 1).at(startX - 1);
+        buffer.at(8 - 1).at(startX - 1) = container();
+        containerFrames.push_back(containers);
+        bufferFrames.push_back(buffer);
+        topRowContainerColumns.push_back(-startX);
+        for (int x = startX + 1; x <= 24; ++x) {
+            containerFrames.push_back(containers);
+            bufferFrames.push_back(buffer);
+            topRowContainerColumns.push_back(-x);
+        }
+        for (int x = 1; x <= endX; ++x) {
+            containerFrames.push_back(containers);
+            bufferFrames.push_back(buffer);
+            topRowContainerColumns.push_back(x);
+        }
+        containers.at(8 - 1).at(endX - 1) = temp;
+        containerFrames.push_back(containers);
+        bufferFrames.push_back(buffer);
+        topRowContainerColumns.push_back(0);
+        for (int y = 8; y > endY; --y) {
+            temp = containers.at(y - 1).at(endX - 1);
+            containers.at(y - 1).at(endX - 1) = containers.at(y - 2).at(endX - 1);
+            containers.at(y - 2).at(endX - 1) = temp;
+            containerFrames.push_back(containers);
+            bufferFrames.push_back(buffer);
+            topRowContainerColumns.push_back(0);
+        }
     }
     else if (isStartTypeShip && !isEndTypeShip) {
         container temp = buffer.at(endY - 1).at(endX - 1);
@@ -346,6 +383,7 @@ void outputMove(node* n) {
             containers.at(y).at(startX - 1) = temp;
             containerFrames.push_back(containers);
             bufferFrames.push_back(buffer);
+            topRowContainerColumns.push_back(0);
         }
         temp = containers.at(8 - 1).at(startX - 1);
         containers.at(8 - 1).at(startX - 1) = container();
@@ -357,19 +395,19 @@ void outputMove(node* n) {
             bufferFrames.push_back(buffer);
             topRowContainerColumns.push_back(x);
         }
-        for (int x = 24; x >= abs(endX); --x) {
+        for (int x = 24; x >= endX; --x) {
             containerFrames.push_back(containers);
             bufferFrames.push_back(buffer);
             topRowContainerColumns.push_back(-x);
         }
-        buffer.at(4 - 1).at(abs(endX) - 1) = temp;
+        buffer.at(4 - 1).at(endX - 1) = temp;
         containerFrames.push_back(containers);
         bufferFrames.push_back(buffer);
         topRowContainerColumns.push_back(0);
-        for (int y = 4; y > abs(endY); --y) {
-            temp = containers.at(abs(y) - 1).at(abs(endX) - 1);
-            containers.at(abs(y) - 1).at(abs(endX) - 1) = containers.at(abs(y) - 2).at(abs(endX) - 1);
-            containers.at(abs(y) - 2).at(abs(endX) - 1) = temp;
+        for (int y = 4; y > endY; --y) {
+            temp = buffer.at(y - 1).at(endX - 1);
+            buffer.at(y - 1).at(endX - 1) = buffer.at(y - 2).at(endX - 1);
+            buffer.at(y - 2).at(endX - 1) = temp;
             containerFrames.push_back(containers);
             bufferFrames.push_back(buffer);
             topRowContainerColumns.push_back(0);
