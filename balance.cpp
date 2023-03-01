@@ -22,6 +22,7 @@ void ShowConsoleCursor(bool);
 void readManifest(const string&, vector<vector<container> >&);
 void printShip(const vector<vector<container>>&, const vector<vector<container>>&);
 void printChar(char, int, int);
+void printString(string& s, int, int);
 
 void outputMoves(node*);
 void outputMove(node*);
@@ -167,12 +168,21 @@ void readManifest(const string &manifest, vector<vector<container> >& containers
     fin.close();
 }
 
-void printShip(const vector<vector<container>>& containers, const vector<vector<container>>& buffer) {
+void printShip(const vector<vector<container>>& containers, const vector<vector<container>>& buffer, int outsideContainerColumn) {
     //[176]░ [177]▒ [178]▓ [219]█ [254]■
+    string bufferRow5 = "                       ", shipRow9 = "            ";
+    if (outsideContainerColumn < 0) {
+        bufferRow5.at(abs(outsideContainerColumn) - 1) = char(178);
+    }
+    if (outsideContainerColumn > 0) {
+        shipRow9.at(outsideContainerColumn - 1) = char(178);
+    }
+    printString(bufferRow5, 0x04, defaultColor);
+    printChar(254, 0x0c, defaultColor);
+    cout << "    ";
+    printChar(254, 0x0c, defaultColor);
+    printString(shipRow9, 0x04, defaultColor);
     string dsc;
-    SetConsoleTextAttribute(console_color, 0x0c);
-    cout << "                       " << char(254) << "    " << char(254) << "\n";
-    SetConsoleTextAttribute(console_color, defaultColor);
     for (int y = rows; y >= 1; --y) {
         for (unsigned x = 1; x <= 24; ++x) {
             if (y <= 4) {
@@ -201,6 +211,12 @@ void printShip(const vector<vector<container>>& containers, const vector<vector<
 void printChar(char c, int new_color, int old_color) {
     SetConsoleTextAttribute(console_color, new_color);
     cout << c;
+    SetConsoleTextAttribute(console_color, old_color);
+}
+
+void printString(string& s, int new_color, int old_color) {
+    SetConsoleTextAttribute(console_color, new_color);
+    cout << s;
     SetConsoleTextAttribute(console_color, old_color);
 }
 
@@ -296,6 +312,16 @@ void outputMove(node* n) {
         container temp = buffer.at(endY - 1).at(endX - 1);
         buffer.at(endY - 1).at(endX - 1) = containers.at(startY - 1).at(startX - 1);
         containers.at(startY - 1).at(startX - 1) = temp;
+        containerFrames.push_back(containers);
+        bufferFrames.push_back(buffer);
+        for (int y = startY; y <= rows; ++y) {
+            temp = containers.at(y - 1).at(startX - 1);
+            containers.at(y - 1).at(startX - 1) = containers.at(y).at(startX - 1);
+            containers.at(y).at(startX - 1) = temp;
+            containerFrames.push_back(containers);
+            bufferFrames.push_back(buffer);
+        }
+        temp = containers.at(rows - 1).at(startX - 1);
         //CODE NOT COMPLETE
     }
     else if (!isStartTypeShip && !isEndTypeShip) {
