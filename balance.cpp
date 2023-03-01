@@ -20,7 +20,7 @@ class CompareNode;
 void ShowConsoleCursor(bool);
 
 void readManifest(const string&, vector<vector<container> >&);
-void printShip(const vector<vector<container>>&, const vector<vector<container>>&);
+void printShip(const vector<vector<container>>&, const vector<vector<container>>&, int);
 void printChar(char, int, int);
 void printString(string& s, int, int);
 
@@ -119,7 +119,7 @@ int main() {
 
     SetConsoleTextAttribute(console_color, defaultColor);
 
-    string manifest = "manifests\\ShipCase2.txt";
+    string manifest = "manifests\\ShipCaseZ5.txt";
 
     vector<vector<container>> containers;
     for (int i = 0; i < rows; ++i) containers.push_back(vector<container>(columns));
@@ -170,7 +170,7 @@ void readManifest(const string &manifest, vector<vector<container> >& containers
 
 void printShip(const vector<vector<container>>& containers, const vector<vector<container>>& buffer, int outsideContainerColumn) {
     //[176]░ [177]▒ [178]▓ [219]█ [254]■
-    string bufferRow5 = "                       ", shipRow9 = "            ";
+    string bufferRow5 = "                       ", shipRow9 = "            \n";
     if (outsideContainerColumn < 0) {
         bufferRow5.at(abs(outsideContainerColumn) - 1) = char(178);
     }
@@ -233,11 +233,12 @@ void outputMoves(node* root) {
 void outputMove(node* n) {
     vector<vector<vector<container>>> containerFrames;
     vector<vector<vector<container>>> bufferFrames;
+    vector<int> topRowContainerColumns;
     string message = n->animationMessage;
     if (message == "") {
         system("CLS");
         cout << "Press Enter to begin Balance Operation\n\n";
-        printShip(n->containers, n->buffer);
+        printShip(n->containers, n->buffer, 0);
         while (!(GetAsyncKeyState(VK_RETURN) & 0x0001)) Sleep(200);
         return;
     }
@@ -268,38 +269,62 @@ void outputMove(node* n) {
         containerFrames.push_back(containers);
         bufferFrames.push_back(buffer);
         int highestContainer = top_container_between(containers, startX + ((startX < endX) ? 1 : -1), endX);
+        bool useTopRow = (highestContainer == 8);
+        highestContainer -= useTopRow;
         for (int y = startY; y <= highestContainer; ++y) {
             temp = containers.at(y - 1).at(startX - 1);
             containers.at(y - 1).at(startX - 1) = containers.at(y).at(startX - 1);
             containers.at(y).at(startX - 1) = temp;
             containerFrames.push_back(containers);
             bufferFrames.push_back(buffer);
+            topRowContainerColumns.push_back(0);
         }
         int currContainerRow = max(startY, highestContainer + 1);
+        if (useTopRow) {
+            temp = containers.at(8 - 1).at(startX - 1);
+            containers.at(8 - 1).at(startX - 1) = container();
+            containerFrames.push_back(containers);
+            bufferFrames.push_back(buffer);
+            topRowContainerColumns.push_back(startX);
+        }
         if (startX < endX) {
             for (int x = startX; x < endX; ++x) {
-                temp = containers.at(currContainerRow - 1).at(x - 1);
-                containers.at(currContainerRow - 1).at(x - 1) = containers.at(currContainerRow - 1).at(x);
-                containers.at(currContainerRow - 1).at(x) = temp;
+                if (!useTopRow) {
+                    temp = containers.at(currContainerRow - 1).at(x - 1);
+                    containers.at(currContainerRow - 1).at(x - 1) = containers.at(currContainerRow - 1).at(x);
+                    containers.at(currContainerRow - 1).at(x) = temp;
+                }
                 containerFrames.push_back(containers);
                 bufferFrames.push_back(buffer);
+                topRowContainerColumns.push_back(0 + (x + 1) * useTopRow);
             }
         }
         else {
             for (int x = startX; x > endX; --x) {
-                temp = containers.at(currContainerRow - 1).at(x - 1);
-                containers.at(currContainerRow - 1).at(x - 1) = containers.at(currContainerRow - 1).at(x - 2);
-                containers.at(currContainerRow - 1).at(x - 2) = temp;
+                if (!useTopRow) {
+                    temp = containers.at(currContainerRow - 1).at(x - 1);
+                    containers.at(currContainerRow - 1).at(x - 1) = containers.at(currContainerRow - 1).at(x - 2);
+                    containers.at(currContainerRow - 1).at(x - 2) = temp;
+                }
                 containerFrames.push_back(containers);
                 bufferFrames.push_back(buffer);
+                topRowContainerColumns.push_back(0 + (x - 1) * useTopRow);
             }
         }
+        if (useTopRow) {
+            containers.at(8 - 1).at(endX - 1) = temp;
+            containerFrames.push_back(containers);
+            bufferFrames.push_back(buffer);
+            topRowContainerColumns.push_back(0);
+        }
         for (int y = currContainerRow; y > endY; --y) {
+            if (currContainerRow )
             temp = containers.at(y - 1).at(endX - 1);
             containers.at(y - 1).at(endX - 1) = containers.at(y - 2).at(endX - 1);
             containers.at(y - 2).at(endX - 1) = temp;
             containerFrames.push_back(containers);
             bufferFrames.push_back(buffer);
+            topRowContainerColumns.push_back(0);
         }
     }
     else if (!isStartTypeShip && isEndTypeShip) {
@@ -314,7 +339,7 @@ void outputMove(node* n) {
         containers.at(startY - 1).at(startX - 1) = temp;
         containerFrames.push_back(containers);
         bufferFrames.push_back(buffer);
-        for (int y = startY; y <= rows; ++y) {
+        for (int y = startY; y < rows; ++y) {
             temp = containers.at(y - 1).at(startX - 1);
             containers.at(y - 1).at(startX - 1) = containers.at(y).at(startX - 1);
             containers.at(y).at(startX - 1) = temp;
@@ -338,7 +363,7 @@ void outputMove(node* n) {
             }
             system("CLS");
             cout << message << "\n\n";
-            printShip(containerFrames.at(i), bufferFrames.at(i));
+            printShip(containerFrames.at(i), bufferFrames.at(i), topRowContainerColumns.at(i));
             Sleep(200);
         }
         if (interrupt) break;
@@ -348,14 +373,14 @@ void outputMove(node* n) {
             }
             system("CLS");
             cout << message << "\n\n";
-            printShip(containerFrames.at(i), bufferFrames.at(i));
+            printShip(containerFrames.at(i), bufferFrames.at(i), topRowContainerColumns.at(i));
             Sleep(200);
         }
     }
     string successMessage = "Success! Moved " + message.substr(7);
     system("CLS");
     cout << successMessage << "\n\n";
-    printShip(n->containers, n->buffer);
+    printShip(n->containers, n->buffer, 0);
     while (!(GetAsyncKeyState(VK_RETURN) & 0x0001)) {
         Sleep(200);
     }
