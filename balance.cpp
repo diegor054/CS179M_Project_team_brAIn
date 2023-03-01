@@ -170,17 +170,18 @@ void readManifest(const string &manifest, vector<vector<container> >& containers
 
 void printShip(const vector<vector<container>>& containers, const vector<vector<container>>& buffer, int outsideContainerColumn) {
     //[176]░ [177]▒ [178]▓ [219]█ [254]■
-    string bufferRow5 = "                       ", shipRow9 = "            \n";
+    string bufferRow5 = "                       ", shipRow9 = "           \n";
     if (outsideContainerColumn < 0) {
         bufferRow5.at(abs(outsideContainerColumn) - 1) = char(178);
     }
-    if (outsideContainerColumn > 0) {
-        shipRow9.at(outsideContainerColumn - 1) = char(178);
+    if (outsideContainerColumn > 1) {
+        shipRow9.at(outsideContainerColumn - 1 - 1) = char(178);
     }
     printString(bufferRow5, 0x04, defaultColor);
     printChar(254, 0x0c, defaultColor);
     cout << "    ";
-    printChar(254, 0x0c, defaultColor);
+    if (outsideContainerColumn == 1) printChar(178, 0x04, defaultColor);
+    else printChar(254, 0x0c, defaultColor);
     printString(shipRow9, 0x04, defaultColor);
     string dsc;
     for (int y = rows; y >= 1; --y) {
@@ -268,6 +269,7 @@ void outputMove(node* n) {
         containers.at(startY - 1).at(startX - 1) = temp;
         containerFrames.push_back(containers);
         bufferFrames.push_back(buffer);
+        topRowContainerColumns.push_back(0);
         int highestContainer = top_container_between(containers, startX + ((startX < endX) ? 1 : -1), endX);
         bool useTopRow = (highestContainer == 8);
         highestContainer -= useTopRow;
@@ -318,7 +320,6 @@ void outputMove(node* n) {
             topRowContainerColumns.push_back(0);
         }
         for (int y = currContainerRow; y > endY; --y) {
-            if (currContainerRow )
             temp = containers.at(y - 1).at(endX - 1);
             containers.at(y - 1).at(endX - 1) = containers.at(y - 2).at(endX - 1);
             containers.at(y - 2).at(endX - 1) = temp;
