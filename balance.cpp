@@ -204,7 +204,6 @@ void printShip(const vector<vector<container>>& containers, const vector<vector<
         }
         cout << endl;
     }
-    //for (int i = 0; i < columns + 2; ++i) cout << (char)219;
     cout << endl;
     return;
 }
@@ -340,6 +339,7 @@ void outputMove(node* n) {
         containers.at(startY - 1).at(startX - 1) = temp;
         containerFrames.push_back(containers);
         bufferFrames.push_back(buffer);
+        topRowContainerColumns.push_back(0);
         for (int y = startY; y < rows; ++y) {
             temp = containers.at(y - 1).at(startX - 1);
             containers.at(y - 1).at(startX - 1) = containers.at(y).at(startX - 1);
@@ -347,8 +347,33 @@ void outputMove(node* n) {
             containerFrames.push_back(containers);
             bufferFrames.push_back(buffer);
         }
-        temp = containers.at(rows - 1).at(startX - 1);
-        //CODE NOT COMPLETE
+        temp = containers.at(8 - 1).at(startX - 1);
+        containers.at(8 - 1).at(startX - 1) = container();
+        containerFrames.push_back(containers);
+        bufferFrames.push_back(buffer);
+        topRowContainerColumns.push_back(startX);
+        for (int x = startX - 1; x >= 1; --x) {
+            containerFrames.push_back(containers);
+            bufferFrames.push_back(buffer);
+            topRowContainerColumns.push_back(x);
+        }
+        for (int x = 24; x >= abs(endX); --x) {
+            containerFrames.push_back(containers);
+            bufferFrames.push_back(buffer);
+            topRowContainerColumns.push_back(-x);
+        }
+        buffer.at(4 - 1).at(abs(endX) - 1) = temp;
+        containerFrames.push_back(containers);
+        bufferFrames.push_back(buffer);
+        topRowContainerColumns.push_back(0);
+        for (int y = 4; y > abs(endY); --y) {
+            temp = containers.at(abs(y) - 1).at(abs(endX) - 1);
+            containers.at(abs(y) - 1).at(abs(endX) - 1) = containers.at(abs(y) - 2).at(abs(endX) - 1);
+            containers.at(abs(y) - 2).at(abs(endX) - 1) = temp;
+            containerFrames.push_back(containers);
+            bufferFrames.push_back(buffer);
+            topRowContainerColumns.push_back(0);
+        }
     }
     else if (!isStartTypeShip && !isEndTypeShip) {
         container temp = buffer.at(endY - 1).at(endX - 1);
