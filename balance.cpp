@@ -417,7 +417,66 @@ void outputMove(node* n) {
         container temp = buffer.at(endY - 1).at(endX - 1);
         buffer.at(endY - 1).at(endX - 1) = containers.at(startY - 1).at(startX - 1);
         containers.at(startY - 1).at(startX - 1) = temp;
-        //CODE NOT COMPLETE
+        containerFrames.push_back(containers);
+        bufferFrames.push_back(buffer);
+        topRowContainerColumns.push_back(0);
+        int highestContainer = top_container_buffer_between(buffer, startX + ((startX < endX) ? 1 : -1), endX);
+        bool useTopRow = (highestContainer == 4);
+        highestContainer -= useTopRow;
+        for (int y = startY; y <= highestContainer; ++y) {
+            temp = buffer.at(y - 1).at(startX - 1);
+            buffer.at(y - 1).at(startX - 1) = buffer.at(y).at(startX - 1);
+            buffer.at(y).at(startX - 1) = temp;
+            containerFrames.push_back(containers);
+            bufferFrames.push_back(buffer);
+            topRowContainerColumns.push_back(0);
+        }
+        int currContainerRow = max(startY, highestContainer + 1);
+        if (useTopRow) {
+            temp = buffer.at(4 - 1).at(startX - 1);
+            buffer.at(4 - 1).at(startX - 1) = container();
+            containerFrames.push_back(containers);
+            bufferFrames.push_back(buffer);
+            topRowContainerColumns.push_back(-startX);
+        }
+        if (startX < endX) {
+            for (int x = startX; x < endX; ++x) {
+                if (!useTopRow) {
+                    temp = buffer.at(currContainerRow - 1).at(x - 1);
+                    buffer.at(currContainerRow - 1).at(x - 1) = buffer.at(currContainerRow - 1).at(x);
+                    buffer.at(currContainerRow - 1).at(x) = temp;
+                }
+                containerFrames.push_back(containers);
+                bufferFrames.push_back(buffer);
+                topRowContainerColumns.push_back(0 + -(x + 1) * useTopRow);
+            }
+        }
+        else {
+            for (int x = startX; x > endX; --x) {
+                if (!useTopRow) {
+                    temp = buffer.at(currContainerRow - 1).at(x - 1);
+                    buffer.at(currContainerRow - 1).at(x - 1) = buffer.at(currContainerRow - 1).at(x - 2);
+                    buffer.at(currContainerRow - 1).at(x - 2) = temp;
+                }
+                containerFrames.push_back(containers);
+                bufferFrames.push_back(buffer);
+                topRowContainerColumns.push_back(0 + -(x - 1) * useTopRow);
+            }
+        }
+        if (useTopRow) {
+            buffer.at(4 - 1).at(endX - 1) = temp;
+            containerFrames.push_back(containers);
+            bufferFrames.push_back(buffer);
+            topRowContainerColumns.push_back(0);
+        }
+        for (int y = currContainerRow; y > endY; --y) {
+            temp = buffer.at(y - 1).at(endX - 1);
+            buffer.at(y - 1).at(endX - 1) = buffer.at(y - 2).at(endX - 1);
+            buffer.at(y - 2).at(endX - 1) = temp;
+            containerFrames.push_back(containers);
+            bufferFrames.push_back(buffer);
+            topRowContainerColumns.push_back(0);
+        }
     }
     bool interrupt = false;
     while (!interrupt) {
