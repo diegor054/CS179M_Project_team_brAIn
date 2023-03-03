@@ -29,7 +29,8 @@ void ShowConsoleCursor(bool);
 void readManifest(const string&, vector<vector<container> >&);
 void logIn();
 bool menu();
-void log_File(const string &);
+void menuScreen();
+void log(const string &);
 void printShip(const vector<vector<container>>&, const vector<vector<container>>&, int);
 void printChar(char, int, int);
 void printString(string&, int, int);
@@ -128,22 +129,11 @@ int main() {
 
     SetConsoleTextAttribute(console_color, defaultColor);
 
+    logFile.open("log.txt");
+
     logIn();
-   // menu();
-    string manifest = "manifests\\ShipCaseZ1.txt";
 
-    vector<vector<container>> containers;
-    for (int i = 0; i < rows; ++i) containers.push_back(vector<container>(columns));
-
-    readManifest(manifest, containers);
-
-
-    node* solution = general_search(containers);
-
-    outputMoves(solution);
-
-    system("pause");
-
+    logFile.close();
     return 0;
 }
 
@@ -176,7 +166,7 @@ void readManifest(const string &manifest, vector<vector<container> >& containers
         if (description != "NAN" && description != "UNUSED") ++numContainers;
     }
     //string message = "Manifest " + manifest + " is opened, there are " + to_string(numContainers) + " containers on the ship.";
-    //log_File(logFile, message);
+    //log(logFile, message);
     fin.close();
 }
 
@@ -190,12 +180,47 @@ void logIn(){
         }while(name == "");
 
         string logInMessage = name +  " logged in.";
-        log_File(logInMessage);
+        log(logInMessage);
         userName = name;
     } while(menu());
 }
 
 bool menu(){
+    menuScreen();
+    char optionChosen = ' ';
+    while(optionChosen == ' '){
+        if(GetAsyncKeyState('S') & 0x8000){
+            FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+            return true;
+        }else if(GetAsyncKeyState('L') & 0x8000){
+            cout << "Unload and Load functionality is not available." << endl;
+        }else if(GetAsyncKeyState('B') & 0x8000){
+            cout << "Enter Manifest Name" << endl;
+            string manifest = "manifests\\ShipCaseZ1.txt";
+            vector<vector<container>> containers;
+            for (int i = 0; i < rows; ++i) containers.push_back(vector<container>(columns));
+            readManifest(manifest, containers);
+            node* solution = general_search(containers);
+            outputMoves(solution);
+            system("pause");
+            menuScreen();
+        }else if(GetAsyncKeyState('C') & 0x8000){
+            FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+            cout << "Enter Comment" << endl;
+            string comment;
+            while(comment == "") getline(cin, comment);
+            log(comment);
+            menuScreen();
+        }else if(GetAsyncKeyState('E') & 0x8000){
+            return false;
+        }
+        Sleep(100);
+    }
+
+    return false;
+}
+
+void menuScreen(){
     //[187]╗ [188]╝ [186]║ [200]╚ [205]═ [201]╔
     system("cls");
     cout << (char)201;
@@ -222,28 +247,9 @@ bool menu(){
         cout << (char)205;
     }
     cout << (char)188 << '\n';
-
-    char optionChosen = ' ';
-    while(optionChosen == ' '){
-        if(GetAsyncKeyState('S') & 0x8000){
-            FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
-            return true;
-        }else if(GetAsyncKeyState('L') & 0x8000){
-            cout << "Unload and Load functionality is not available." << endl;
-        }else if(GetAsyncKeyState('B') & 0x8000){
-
-        }else if(GetAsyncKeyState('C') & 0x8000){
-
-        }else if(GetAsyncKeyState('E') & 0x8000){
-            return false;
-        }
-        Sleep(100);
-    }
-
-    return false;
 }
 
-void log_File(const string &message){
+void log(const string &message){
 	time_t curr_time;
 	tm * curr_tm;
 	char date_[100];
