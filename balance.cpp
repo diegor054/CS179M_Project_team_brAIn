@@ -3,6 +3,7 @@
 #include <map>
 #include <queue>
 #include <string.h>
+#include <string>
 #include <fstream>
 #include <ctime>
 #include <algorithm>
@@ -16,6 +17,8 @@ const int defaultColor = 0x08;
 
 ofstream logFile;
 
+string userName;
+
 struct container;
 struct node;
 class CompareNode;
@@ -23,6 +26,7 @@ class CompareNode;
 void ShowConsoleCursor(bool);
 
 void readManifest(const string&, vector<vector<container> >&);
+bool logIn();
 void log_File(const string &);
 void printShip(const vector<vector<container>>&, const vector<vector<container>>&, int);
 void printChar(char, int, int);
@@ -120,16 +124,16 @@ int main() {
 
     ShowConsoleCursor(false);
 
-    //system("pause");
-
     SetConsoleTextAttribute(console_color, defaultColor);
 
+    logIn();
     string manifest = "manifests\\ShipCaseZ1.txt";
 
     vector<vector<container>> containers;
     for (int i = 0; i < rows; ++i) containers.push_back(vector<container>(columns));
 
     readManifest(manifest, containers);
+
 
     node* solution = general_search(containers);
 
@@ -171,6 +175,22 @@ void readManifest(const string &manifest, vector<vector<container> >& containers
     //string message = "Manifest " + manifest + " is opened, there are " + to_string(numContainers) + " containers on the ship.";
     //log_File(logFile, message);
     fin.close();
+}
+
+bool logIn(){
+    string name;
+    do{
+        system("cls");
+        cout << "Welcome! Please enter your name to log in. \n\nUsername: " << flush;
+        getline(cin, name);
+    } while(name == "");
+
+    string logInMessage = name +  " logged in.";
+    log_File(logInMessage);
+
+    userName = name;
+
+    return userName != "";
 }
 
 void log_File(const string &message){
