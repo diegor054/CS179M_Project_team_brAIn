@@ -183,13 +183,16 @@ void readManifest(const string &manifest, vector<vector<container> >& containers
 void logIn(){
     string name;
     do{
-        system("cls");
-        cout << "Welcome! Please enter your name to log in. \n\nUsername: " << flush;
-        getline(cin, name);
+        do{
+            system("cls");
+            cout << "Welcome! Please enter your name to log in. \n\nUsername: " << flush;
+            getline(cin, name);
+        }while(name == "");
+
         string logInMessage = name +  " logged in.";
         log_File(logInMessage);
         userName = name;
-        } while(menu());
+    } while(menu());
 }
 
 bool menu(){
