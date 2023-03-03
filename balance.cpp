@@ -7,6 +7,7 @@
 #include <fstream>
 #include <ctime>
 #include <algorithm>
+#include <limits>
 #include <windows.h>
 
 using namespace std;
@@ -26,7 +27,8 @@ class CompareNode;
 void ShowConsoleCursor(bool);
 
 void readManifest(const string&, vector<vector<container> >&);
-bool logIn();
+void logIn();
+bool menu();
 void log_File(const string &);
 void printShip(const vector<vector<container>>&, const vector<vector<container>>&, int);
 void printChar(char, int, int);
@@ -127,6 +129,7 @@ int main() {
     SetConsoleTextAttribute(console_color, defaultColor);
 
     logIn();
+   // menu();
     string manifest = "manifests\\ShipCaseZ1.txt";
 
     vector<vector<container>> containers;
@@ -177,20 +180,64 @@ void readManifest(const string &manifest, vector<vector<container> >& containers
     fin.close();
 }
 
-bool logIn(){
+void logIn(){
     string name;
     do{
         system("cls");
         cout << "Welcome! Please enter your name to log in. \n\nUsername: " << flush;
         getline(cin, name);
-    } while(name == "");
+        string logInMessage = name +  " logged in.";
+        log_File(logInMessage);
+        userName = name;
+        } while(menu());
+}
 
-    string logInMessage = name +  " logged in.";
-    log_File(logInMessage);
+bool menu(){
+    //[187]╗ [188]╝ [186]║ [200]╚ [205]═ [201]╔
+    system("cls");
+    cout << (char)201;
+    for (int i = 0; i < 38; ++i) {
+        cout << (char)205;
+    }
+    cout << (char)187 << '\n';
 
-    userName = name;
+    string line1, line2, line3, line4, line5, blank;
+    blank = "                                      ";
+    line1 = "        [S] Switch User               ";
+    line2 = "        [L] Load/Unload Ship          ";
+    line3 = "        [B] Balance Ship              ";
+    line4 = "        [C] Write Comment To Log      ";
+    line5 = "        [E] Exit                      ";
+    vector<string> lines = {blank, blank, line1, blank, blank, line2, blank, blank, line3, blank, blank, line4, blank, blank, line5, blank, blank};
 
-    return userName != "";
+    for(int i = 0; i < lines.size(); ++i){
+        cout << (char)186 << lines.at(i) << (char)186 << '\n';
+    }
+
+    cout << (char)200;
+    for (int i = 0; i < 38; ++i) {
+        cout << (char)205;
+    }
+    cout << (char)188 << '\n';
+
+    char optionChosen = ' ';
+    while(optionChosen == ' '){
+        if(GetAsyncKeyState('S') & 0x8000){
+            FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+            return true;
+        }else if(GetAsyncKeyState('L') & 0x8000){
+            cout << "Unload and Load functionality is not available." << endl;
+        }else if(GetAsyncKeyState('B') & 0x8000){
+
+        }else if(GetAsyncKeyState('C') & 0x8000){
+
+        }else if(GetAsyncKeyState('E') & 0x8000){
+            return false;
+        }
+        Sleep(100);
+    }
+
+    return false;
 }
 
 void log_File(const string &message){
@@ -303,7 +350,7 @@ void outputMove(node* n) {
         system("CLS");
         cout << "Press Enter to begin Balance Operation\n\n";
         printShip(n->containers, n->buffer, 0);
-        while (!(GetAsyncKeyState(VK_RETURN) & 0x0001)) Sleep(200);
+        while (!(GetAsyncKeyState(VK_RETURN) & 0x8000)) Sleep(200);
         return;
     }
     int startY = message.find('{') + 1;
