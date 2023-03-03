@@ -4,6 +4,7 @@
 #include <queue>
 #include <string.h>
 #include <fstream>
+#include <ctime>
 #include <algorithm>
 #include <windows.h>
 
@@ -13,6 +14,8 @@ const int rows = 8, columns = 12;
 
 const int defaultColor = 0x08;
 
+ofstream logFile;
+
 struct container;
 struct node;
 class CompareNode;
@@ -20,6 +23,7 @@ class CompareNode;
 void ShowConsoleCursor(bool);
 
 void readManifest(const string&, vector<vector<container> >&);
+void log_File(const string &);
 void printShip(const vector<vector<container>>&, const vector<vector<container>>&, int);
 void printChar(char, int, int);
 void printString(string&, int, int);
@@ -45,6 +49,7 @@ int top_container_between(vector<vector<container> >&, int, int);
 int top_container_buffer_between(vector<vector<container> >&, int, int);
 void a_star_search(priority_queue<node*, vector<node*>, CompareNode>&, vector<node*>&);
 int balance_heuristic(vector<vector<container> >&, int);
+
 
 struct container {
     int weight;
@@ -167,6 +172,44 @@ void readManifest(const string &manifest, vector<vector<container> >& containers
     //log_File(logFile, message);
     fin.close();
 }
+
+void log_File(const string &message){
+	time_t curr_time;
+	tm * curr_tm;
+	char date_[100];
+    char date2_[100];
+	char time_[100];
+	
+	time(&curr_time);
+	curr_tm = localtime(&curr_time);
+    string dayType;
+    int day = curr_tm->tm_mday;
+    switch(day%10){
+        case 1:
+        dayType = "st";
+        break;
+        case 2:
+        dayType = "nd";
+        break;
+
+        case 3: 
+        dayType= "rd";
+        break;
+
+        default:
+        dayType = "th";
+        break;
+    }
+    strftime(date_, 50, "%B %d", curr_tm);
+    strftime(date2_, 50, " %Y:", curr_tm);
+	strftime(time_, 50, "%H:%M", curr_tm);
+	
+	logFile << "[" << date_;
+    logFile << dayType << date2_ << " ";
+	logFile << time_ << "] ";
+    logFile << message << "\n";
+}
+
 
 void printShip(const vector<vector<container>>& containers, const vector<vector<container>>& buffer, int outsideContainerColumn) {
     //[176]░ [177]▒ [178]▓ [219]█ [254]■
@@ -854,3 +897,5 @@ int balance_heuristic(vector<vector<container> >& containers, int totalTime) {
     int hn_weight = heavier_side_weight * 0.9 - lighter_side_weight;
     return hn_weight * 0.5 + totalTime * 0.5;
 }
+
+
