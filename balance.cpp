@@ -36,9 +36,9 @@ void log(const string &);
 void printShip(const vector<vector<container>>&, const vector<vector<container>>&, int);
 void printChar(char, int, int);
 void printString(string&, int, int);
-
-void outputMoves(node*);
-void outputMove(node*);
+int totalMoves(node*);
+void outputMoves(pair<node*, int>);
+void outputMove(node*, int, int, int);
 
 int left_mass(const vector<vector<container> >&);
 int right_mass(const vector<vector<container> >&);
@@ -46,7 +46,7 @@ double deficit(const vector<vector<container> >&);
 int get_hn(vector<vector<container> >&);
 bool isGoalState(const vector<vector<container> >&, const vector<vector<container> >&);
 bool isBufferEmpty(const vector<vector<container> >&);
-node* general_search(vector<vector<container> >&);
+pair<node*, int> general_search(vector<vector<container> >&);
 void sift(vector<vector<container> >&);
 vector<vector<container>> siftGoalState(vector<vector<container> >&);
 vector<node*> expand(node*, priority_queue<node*, vector<node*>, CompareNode>&, map<string, bool>&);
@@ -226,10 +226,10 @@ bool menu(){
             vector<vector<container>> containers;
             for (int i = 0; i < rows; ++i) containers.push_back(vector<container>(columns));
             readManifest(manifest, containers);
-            node* solution = general_search(containers);
+            pair<node*, int> solution = general_search(containers);
             outputMoves(solution);
-            while(solution->children.size()) solution = solution->children.at(0);
-            writeManifest(manifest, solution->containers);
+            while(solution.first->children.size()) solution.first = solution.first->children.at(0);
+            writeManifest(manifest, solution.first->containers);
             cout << "Reminder: Email the updated Manifest to the ship captain." << endl;;
             system("pause");
             menuScreen();
@@ -369,17 +369,30 @@ void printString(string& s, int new_color, int old_color) {
     SetConsoleTextAttribute(console_color, old_color);
 }
 
-void outputMoves(node* root) {
+int totalMoves(node* root){
+    int moves = 0;
     node* n = root;
-    while (n->children.size()) {
-        outputMove(n);
+    while(n->children.size()){
         n = n->children.at(0);
+        ++moves;
     }
-    outputMove(n);
+    return moves;
+}
+
+void outputMoves(pair<node*, int> root) {
+    node* n = root.first;
+    int currentMove = 0;
+    int totalNumberMoves = totalMoves(n);
+    while (n->children.size()) {
+        outputMove(n, root.second, currentMove, totalNumberMoves);
+        n = n->children.at(0);
+        ++currentMove;
+    }
+    outputMove(n, root.second, currentMove, totalNumberMoves);
     return;
 }
 
-void outputMove(node* n) {
+void outputMove(node* n, int totalTime, int currentMoves, int numMoves) {
     vector<vector<vector<container>>> containerFrames;
     vector<vector<vector<container>>> bufferFrames;
     vector<int> topRowContainerColumns;
@@ -653,6 +666,8 @@ void outputMove(node* n) {
     system("CLS");
     cout << successMessage << "\n\n";
     printShip(n->containers, n->buffer, 0);
+    cout << "Step " << currentMoves << "/" << numMoves << " completed." << endl;
+    cout << "Remaining time: " << (totalTime - n->totalTime) << " minutes" << endl;
     while (!(GetAsyncKeyState(VK_RETURN) & 0x0001)) {
         Sleep(200);
     }
@@ -737,7 +752,7 @@ vector<vector<container>> siftGoalState(vector<vector<container> >& containers){
 }
 
 
-node* general_search(vector<vector<container> >& containers) {
+pair<node*, int> general_search(vector<vector<container> >& containers) {
     priority_queue<node*, vector<node*>, CompareNode> nodes;
     node *initial_state = new node(containers);
     initial_state->set_gn(0);
@@ -751,7 +766,7 @@ node* general_search(vector<vector<container> >& containers) {
             cout << "Ship could not be balanced. Beginning SIFT operation." << endl;
             sift(containers);
             cout << "SIFT operation complete" << endl;
-            return nullptr;
+            return pair<node*, int>(nullptr, -1);
         }
         //if (nodes.size() > max_queue_size) {
         //    max_queue_size = nodes.size();
@@ -777,7 +792,7 @@ node* general_search(vector<vector<container> >& containers) {
                     }
                 }
             }
-            return temp;
+            return pair<node*, int> (temp, curr_state->totalTime);
         }
         vector<node*> new_nodes = expand(curr_state, nodes, explored_states);
         a_star_search(nodes, new_nodes);
