@@ -401,6 +401,8 @@ void outputMove(node* n, int totalTime, int currentMoves, int numMoves) {
         system("CLS");
         cout << "Press Enter to begin Balance Operation\n\n";
         printShip(n->containers, n->buffer, 0);
+        cout << "Step " << currentMoves << "/" << numMoves << " completed." << endl;
+        cout << "Remaining time: " << (totalTime - n->totalTime) << " minutes" << endl;
         while (!(GetAsyncKeyState(VK_RETURN) & 0x8000)) Sleep(200);
         return;
     }
