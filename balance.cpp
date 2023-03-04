@@ -8,6 +8,7 @@
 #include <ctime>
 #include <algorithm>
 #include <limits>
+#include <iomanip>
 #include <windows.h>
 
 using namespace std;
@@ -27,6 +28,7 @@ class CompareNode;
 void ShowConsoleCursor(bool);
 
 void readManifest(const string&, vector<vector<container> >&);
+void writeManifest(const string &, vector<vector<container>> &);
 void logIn();
 bool menu();
 void menuScreen();
@@ -165,9 +167,30 @@ void readManifest(const string &manifest, vector<vector<container> >& containers
         containers.at(y - 1).at(x - 1).desc = description;
         if (description != "NAN" && description != "UNUSED") ++numContainers;
     }
-    //string message = "Manifest " + manifest + " is opened, there are " + to_string(numContainers) + " containers on the ship.";
-    //log(logFile, message);
+    string message = "Manifest " + manifest + " is opened, there are " + to_string(numContainers) + " containers on the ship.";
+    log(message);
     fin.close();
+}
+
+void writeManifest(const string &manifest, vector<vector<container>> &containers){
+    string updatedManifest = manifest.substr(0, manifest.size() - 4) + "OUTBOUND.txt";
+    ofstream fout(updatedManifest);
+    if (!fout.is_open()) {
+        cout << "Error opening " << manifest << "!" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    for(int i = 1; i <= rows; ++i){
+        for(int j = 1; j <= columns; ++j){
+            fout << "[" << setw(2) << setfill('0') << i << "," << j << "], ";
+            fout << "{" << setw(5) << setfill('0') << containers.at(i).at(j).weight << "}, ";
+            fout << containers.at(i).at(j).desc << endl;
+        }
+    }
+    
+    string message = "Finished a Cycle. Manifest " + updatedManifest + " was written to desktop, and a reminder pop-up to operator to send file was displayed.";
+    log(message);
+    fout.close();
 }
 
 void logIn(){
@@ -195,13 +218,17 @@ bool menu(){
         }else if(GetAsyncKeyState('L') & 0x8000){
             cout << "Unload and Load functionality is not available." << endl;
         }else if(GetAsyncKeyState('B') & 0x8000){
-            cout << "Enter Manifest Name" << endl;
-            string manifest = "manifests\\ShipCaseZ1.txt";
+            FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+            cout << "Enter Manifest File Name" << endl;
+            string manifest;
+            getline(cin, manifest);
+            manifest = "manifests\\" + manifest;
             vector<vector<container>> containers;
             for (int i = 0; i < rows; ++i) containers.push_back(vector<container>(columns));
             readManifest(manifest, containers);
             node* solution = general_search(containers);
             outputMoves(solution);
+            writeManifest(manifest, solution->containers);
             system("pause");
             menuScreen();
         }else if(GetAsyncKeyState('C') & 0x8000){
@@ -971,6 +998,8 @@ int balance_heuristic(vector<vector<container> >& containers) {
         swap(lighter_side_weight, heavier_side_weight);
     }
     int hn_weight = heavier_side_weight * 0.9 - lighter_side_weight;
+    //( (heavier_side_weight - lighter_side_weight) / (heavier_side_weight + lighter_side_weight)) * 10 + totalTime
+
     return hn_weight;
 }
 
