@@ -182,9 +182,9 @@ void writeManifest(const string &manifest, vector<vector<container>> &containers
 
     for(int i = 1; i <= rows; ++i){
         for(int j = 1; j <= columns; ++j){
-            fout << "[" << setw(2) << setfill('0') << i << "," << j << "], ";
-            fout << "{" << setw(5) << setfill('0') << containers.at(i).at(j).weight << "}, ";
-            fout << containers.at(i).at(j).desc << endl;
+            fout << "[" << setw(2) << setfill('0') << i << "," << setw(2) << setfill('0') << j << "], ";
+            fout << "{" << setw(5) << setfill('0') << containers.at(i - 1).at(j - 1).weight << "}, ";
+            fout << containers.at(i - 1).at(j - 1).desc << endl;
         }
     }
     
@@ -228,7 +228,9 @@ bool menu(){
             readManifest(manifest, containers);
             node* solution = general_search(containers);
             outputMoves(solution);
+            while(solution->children.size()) solution = solution->children.at(0);
             writeManifest(manifest, solution->containers);
+            cout << "Reminder: Email the updated Manifest to the ship captain." << endl;;
             system("pause");
             menuScreen();
         }else if(GetAsyncKeyState('C') & 0x8000){
