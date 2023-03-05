@@ -132,7 +132,13 @@ int main() {
 
     SetConsoleTextAttribute(console_color, defaultColor);
 
+    ifstream logCopy;
+    logCopy.open("log.txt");
+    string previousLog, temp;
+    while(logCopy >> temp) previousLog += temp;
+    logCopy.close();
     logFile.open("log.txt");
+    logFile << previousLog;
 
     logIn();
 
