@@ -135,7 +135,7 @@ int main() {
     ifstream logCopy;
     logCopy.open("log.txt");
     string previousLog, temp;
-    while(logCopy >> temp) previousLog += temp;
+    while(getline(logCopy, temp)) previousLog += temp + '\n';
     logCopy.close();
     logFile.open("log.txt");
     logFile << previousLog;
