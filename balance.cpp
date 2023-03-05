@@ -48,8 +48,10 @@ int get_hn(vector<vector<container> >&);
 bool isGoalState(const vector<vector<container> >&, const vector<vector<container> >&);
 bool isBufferEmpty(const vector<vector<container> >&);
 pair<node*, int> general_search(vector<vector<container> >&);
-void sift(vector<vector<container> >&);
+pair<node*, int> sift(vector<vector<container> >&);
 vector<vector<container>> siftGoalState(vector<vector<container> >&);
+bool isSiftGoalState(const vector<vector<container> >&, const vector<vector<container> >&, const vector<vector<container> >&);
+int sift_Heuristic(vector<vector<container>> &);
 vector<node*> expand(node*, priority_queue<node*, vector<node*>, CompareNode>&, map<string, bool>&);
 pair<int,int> find_nearest_column(vector<vector<container> >&, int);
 pair<int,int> findNearestBufferColumn(vector<vector<container> >&);
@@ -71,6 +73,10 @@ struct container {
 
 bool operator<(const container &lhs, const container &rhs){
     return lhs.weight < rhs.weight;
+}
+
+bool operator!=(const container &lhs, const container &rhs){
+    return ((lhs.weight != rhs.weight) || (lhs.desc != rhs.desc)); 
 }
 
 struct node {
@@ -747,8 +753,54 @@ bool isBufferEmpty(const vector<vector<container> >& buffer) {
     return true;
 }
 
-void sift(vector<vector<container> >& containers) {
+pair<node*, int> sift(vector<vector<container> >& containers) {
+    priority_queue<node*, vector<node*>, CompareNode> nodes;
+    node *initial_state = new node(containers);
+    initial_state->set_gn(0);
+    initial_state->set_hn(sift_Heuristic(initial_state->containers));
+    nodes.push(initial_state);
+    unsigned max_queue_size = 1;
+    unsigned nodes_expanded = 0;
+    map<string, bool> explored_states;
+    vector<vector<container>> goalState = siftGoalState(containers);
+    while(true) {
+        if (nodes.empty()) {
+            cout << "ERROR: SIFT operation failed" << endl;
+            return pair<node*, int>(nullptr, -1);
+        }
+        node* curr_state = nodes.top();
+        nodes.pop();
+        if (isSiftGoalState(curr_state->containers, curr_state->buffer, goalState)) {
+            node* temp = curr_state;
+            node* tempChild = nullptr;
+            while (temp->parent) {
+                tempChild = temp;
+                temp = temp->parent;
+                for (vector<node*>::reverse_iterator it = temp->children.rbegin(); it != temp->children.rend(); ++it) {
+                    if (*it != tempChild) {
+                        delete *it;
+                        temp->children.erase((it+1).base());
+                    }
+                }
+            }
+            return pair<node*, int> (temp, curr_state->totalTime);
+        }
+        vector<node*> new_nodes = expand(curr_state, nodes, explored_states);
+        a_star_search(nodes, new_nodes);
+        ++nodes_expanded;
+    }
+}
 
+bool isSiftGoalState(const vector<vector<container> >& containers, const vector<vector<container> >& buffer, const vector<vector<container> >& goalState) {
+    if (!isBufferEmpty(buffer)) return false;
+    for(int i = 1; i <= rows; ++i){
+        for(int j = 1; j <= columns; ++j){
+            if(containers.at(i - 1).at(j - 1) != goalState.at(i - 1).at(j - 1)){
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 vector<vector<container>> siftGoalState(vector<vector<container> >& containers){
@@ -781,6 +833,9 @@ vector<vector<container>> siftGoalState(vector<vector<container> >& containers){
     return goalState;
 }
 
+int sift_Heuristic(vector<vector<container>> &containers){
+
+}
 
 pair<node*, int> general_search(vector<vector<container> >& containers) {
     priority_queue<node*, vector<node*>, CompareNode> nodes;
