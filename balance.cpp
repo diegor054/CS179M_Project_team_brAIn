@@ -32,6 +32,7 @@ void writeManifest(const string &, vector<vector<container>> &);
 void logIn();
 bool menu();
 void menuScreen();
+void writeComment();
 void log(const string &);
 void printShip(const vector<vector<container>>&, const vector<vector<container>>&, int);
 void printChar(char, int, int);
@@ -234,11 +235,7 @@ bool menu(){
             system("pause");
             menuScreen();
         }else if(GetAsyncKeyState('C') & 0x8000){
-            FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
-            cout << "Enter Comment" << endl;
-            string comment;
-            while(comment == "") getline(cin, comment);
-            log(comment);
+            writeComment();
             menuScreen();
         }else if(GetAsyncKeyState('E') & 0x8000){
             return false;
@@ -276,6 +273,14 @@ void menuScreen(){
         cout << (char)205;
     }
     cout << (char)188 << '\n';
+}
+
+void writeComment(){
+    FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+    cout << "Enter Comment:" << endl;
+    string comment;
+    while(comment == "") getline(cin, comment);
+    log(comment);
 }
 
 void log(const string &message){
@@ -401,7 +406,12 @@ void outputMove(node* n, int totalTime, int currentMoves, int numMoves) {
         system("CLS");
         cout << "Press Enter to begin Balance Operation\n\n";
         printShip(n->containers, n->buffer, 0);
-        while (!(GetAsyncKeyState(VK_RETURN) & 0x8000)) Sleep(200);
+        while (!(GetAsyncKeyState(VK_RETURN) & 0x8000)) {
+            if(GetAsyncKeyState('C') & 0x8000){
+                writeComment();
+            }
+            Sleep(200);
+        }
         return;
     }
     int startY = message.find('{') + 1;
@@ -646,6 +656,10 @@ void outputMove(node* n, int totalTime, int currentMoves, int numMoves) {
             if (GetAsyncKeyState(VK_RETURN) & 0x0001) {
                 interrupt = true; break;
             }
+            if(GetAsyncKeyState('C') & 0x8000){
+                writeComment();
+                GetAsyncKeyState(VK_RETURN);
+            }
             system("CLS");
             cout << message << "\n\n";
             printShip(containerFrames.at(i), bufferFrames.at(i), topRowContainerColumns.at(i));
@@ -655,6 +669,10 @@ void outputMove(node* n, int totalTime, int currentMoves, int numMoves) {
         for (int i = containerFrames.size() - 2; i >= 1; --i) {
             if (GetAsyncKeyState(VK_RETURN) & 0x0001) {
                 interrupt = true; break;
+            }
+            if(GetAsyncKeyState('C') & 0x8000){
+                writeComment();
+                GetAsyncKeyState(VK_RETURN);
             }
             system("CLS");
             cout << message << "\n\n";
@@ -669,6 +687,9 @@ void outputMove(node* n, int totalTime, int currentMoves, int numMoves) {
     cout << "Step " << currentMoves << "/" << numMoves << " completed." << endl;
     cout << "Remaining time: " << (totalTime - n->totalTime) << " minutes" << endl;
     while (!(GetAsyncKeyState(VK_RETURN) & 0x0001)) {
+        if(GetAsyncKeyState('C') & 0x8000){
+            writeComment();
+        }
         Sleep(200);
     }
     return;
