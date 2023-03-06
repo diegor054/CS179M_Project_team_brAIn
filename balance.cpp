@@ -51,8 +51,9 @@ pair<node*, int> general_search(vector<vector<container> >&);
 pair<node*, int> sift(vector<vector<container> >&);
 vector<vector<container>> siftGoalState(vector<vector<container> >&);
 bool isSiftGoalState(const vector<vector<container> >&, const vector<vector<container> >&, const vector<vector<container> >&);
-void sift_a_star_search(priority_queue<node*, vector<node*>, CompareNode>& nodes, vector<node*>& new_nodes);
-int sift_Heuristic(vector<vector<container>> &);
+void sift_a_star_search(priority_queue<node*, vector<node*>, CompareNode>&, vector<node*>&, vector<vector<container>> &);
+int sift_Heuristic(vector<vector<container>> &, vector<vector<container>> &);
+pair<int, int> findContainer(container &, vector<vector<container>> &);
 vector<node*> expand(node*, priority_queue<node*, vector<node*>, CompareNode>&, map<string, bool>&);
 pair<int,int> find_nearest_column(vector<vector<container> >&, int);
 pair<int,int> findNearestBufferColumn(vector<vector<container> >&);
@@ -78,6 +79,10 @@ bool operator<(const container &lhs, const container &rhs){
 
 bool operator!=(const container &lhs, const container &rhs){
     return ((lhs.weight != rhs.weight) || (lhs.desc != rhs.desc)); 
+}
+
+bool operator==(const container &lhs, const container &rhs){
+    return ((lhs.weight == rhs.weight) && (lhs.desc == rhs.desc)); 
 }
 
 struct node {
@@ -757,13 +762,13 @@ bool isBufferEmpty(const vector<vector<container> >& buffer) {
 pair<node*, int> sift(vector<vector<container> >& containers) {
     priority_queue<node*, vector<node*>, CompareNode> nodes;
     node *initial_state = new node(containers);
+    vector<vector<container>> goalState = siftGoalState(containers);
     initial_state->set_gn(0);
-    initial_state->set_hn(sift_Heuristic(initial_state->containers));
+    initial_state->set_hn(sift_Heuristic(initial_state->containers, goalState));
     nodes.push(initial_state);
     unsigned max_queue_size = 1;
     unsigned nodes_expanded = 0;
     map<string, bool> explored_states;
-    vector<vector<container>> goalState = siftGoalState(containers);
     while(true) {
         if (nodes.empty()) {
             cout << "ERROR: SIFT operation failed" << endl;
@@ -787,7 +792,7 @@ pair<node*, int> sift(vector<vector<container> >& containers) {
             return pair<node*, int> (temp, curr_state->totalTime);
         }
         vector<node*> new_nodes = expand(curr_state, nodes, explored_states);
-        sift_a_star_search(nodes, new_nodes);
+        sift_a_star_search(nodes, new_nodes, goalState);
         ++nodes_expanded;
     }
 }
@@ -835,16 +840,35 @@ vector<vector<container>> siftGoalState(vector<vector<container> >& containers){
 }
 
 
-void sift_a_star_search(priority_queue<node*, vector<node*>, CompareNode>& nodes, vector<node*>& new_nodes) {
+void sift_a_star_search(priority_queue<node*, vector<node*>, CompareNode>& nodes, vector<node*>& new_nodes, vector<vector<container>> &goal) {
     for (unsigned i = 0; i < new_nodes.size(); ++i) {
         new_nodes[i]->set_gn(new_nodes[i]->totalTime);
-        new_nodes[i]->set_hn(sift_Heuristic(new_nodes[i]->containers));
+        new_nodes[i]->set_hn(sift_Heuristic(new_nodes[i]->containers, goal));
         nodes.push(new_nodes[i]);
     } 
 }
 
-int sift_Heuristic(vector<vector<container>> &containers){
+int sift_Heuristic(vector<vector<container>> &containers, vector<vector<container>> &goalState){
+    int hn = 0;
+    for(int i = 1; i <= rows; ++i){
+        for(int j = 1; j <= columns; ++j){
+            if(containers.at(i - 1).at(j - 1).desc == "NAN" || containers.at(i - 1).at(j - 1).desc == "UNUSED") continue;
+            pair<int, int> location = findContainer(containers.at(i - 1).at(j - 1), goalState);
+            hn += (abs((location.first - i)) + abs((location.second - j)));
+        }
+    }
+    return hn;
+}
 
+pair<int, int> findContainer(container &c, vector<vector<container>> &containers){
+    for(int i = 1; i <= rows; ++i){
+        for(int j = 1; j <= columns; ++j){
+            if(c == containers.at(i - 1).at(j - 1)){
+                return pair<int, int> (i, j);
+            }
+        }
+    }
+    return pair<int,int> (0,0);
 }
 
 pair<node*, int> general_search(vector<vector<container> >& containers) {
