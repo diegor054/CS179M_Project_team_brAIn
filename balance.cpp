@@ -51,6 +51,7 @@ pair<node*, int> general_search(vector<vector<container> >&);
 pair<node*, int> sift(vector<vector<container> >&);
 vector<vector<container>> siftGoalState(vector<vector<container> >&);
 bool isSiftGoalState(const vector<vector<container> >&, const vector<vector<container> >&, const vector<vector<container> >&);
+void sift_a_star_search(priority_queue<node*, vector<node*>, CompareNode>& nodes, vector<node*>& new_nodes);
 int sift_Heuristic(vector<vector<container>> &);
 vector<node*> expand(node*, priority_queue<node*, vector<node*>, CompareNode>&, map<string, bool>&);
 pair<int,int> find_nearest_column(vector<vector<container> >&, int);
@@ -786,7 +787,7 @@ pair<node*, int> sift(vector<vector<container> >& containers) {
             return pair<node*, int> (temp, curr_state->totalTime);
         }
         vector<node*> new_nodes = expand(curr_state, nodes, explored_states);
-        a_star_search(nodes, new_nodes);
+        sift_a_star_search(nodes, new_nodes);
         ++nodes_expanded;
     }
 }
@@ -831,6 +832,15 @@ vector<vector<container>> siftGoalState(vector<vector<container> >& containers){
         }
     }
     return goalState;
+}
+
+
+void sift_a_star_search(priority_queue<node*, vector<node*>, CompareNode>& nodes, vector<node*>& new_nodes) {
+    for (unsigned i = 0; i < new_nodes.size(); ++i) {
+        new_nodes[i]->set_gn(new_nodes[i]->totalTime);
+        new_nodes[i]->set_hn(sift_Heuristic(new_nodes[i]->containers));
+        nodes.push(new_nodes[i]);
+    } 
 }
 
 int sift_Heuristic(vector<vector<container>> &containers){
