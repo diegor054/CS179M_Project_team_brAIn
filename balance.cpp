@@ -52,7 +52,7 @@ pair<node*, int> sift(vector<vector<container> >&);
 vector<vector<container>> siftGoalState(vector<vector<container> >&);
 bool isSiftGoalState(const vector<vector<container> >&, const vector<vector<container> >&, const vector<vector<container> >&);
 void sift_a_star_search(priority_queue<node*, vector<node*>, CompareNode>&, vector<node*>&, vector<vector<container>> &);
-int sift_Heuristic(vector<vector<container>> &, vector<vector<container>> &);
+int sift_Heuristic(vector<vector<container>> &, vector<vector<container>> &, vector<vector<container>> &);
 pair<int, int> findContainer(container &, vector<vector<container>> &);
 vector<node*> expand(node*, priority_queue<node*, vector<node*>, CompareNode>&, map<string, bool>&);
 pair<int,int> find_nearest_column(vector<vector<container> >&, int);
@@ -764,7 +764,7 @@ pair<node*, int> sift(vector<vector<container> >& containers) {
     node *initial_state = new node(containers);
     vector<vector<container>> goalState = siftGoalState(containers);
     initial_state->set_gn(0);
-    initial_state->set_hn(sift_Heuristic(initial_state->containers, goalState));
+    initial_state->set_hn(sift_Heuristic(initial_state->containers, initial_state->buffer, goalState));
     nodes.push(initial_state);
     unsigned max_queue_size = 1;
     unsigned nodes_expanded = 0;
@@ -843,12 +843,12 @@ vector<vector<container>> siftGoalState(vector<vector<container> >& containers){
 void sift_a_star_search(priority_queue<node*, vector<node*>, CompareNode>& nodes, vector<node*>& new_nodes, vector<vector<container>> &goal) {
     for (unsigned i = 0; i < new_nodes.size(); ++i) {
         new_nodes[i]->set_gn(new_nodes[i]->totalTime);
-        new_nodes[i]->set_hn(sift_Heuristic(new_nodes[i]->containers, goal));
+        new_nodes[i]->set_hn(sift_Heuristic(new_nodes[i]->containers, new_nodes[i]->buffer, goal));
         nodes.push(new_nodes[i]);
     } 
 }
 
-int sift_Heuristic(vector<vector<container>> &containers, vector<vector<container>> &goalState){
+int sift_Heuristic(vector<vector<container>> &containers, vector<vector<container>> &buffer, vector<vector<container>> &goalState){
     int hn = 0;
     for(int i = 1; i <= rows; ++i){
         for(int j = 1; j <= columns; ++j){
@@ -857,6 +857,15 @@ int sift_Heuristic(vector<vector<container>> &containers, vector<vector<containe
             hn += (abs((location.first - i)) + abs((location.second - j)));
         }
     }
+
+    for(int i = 1; i <= 4; ++i){
+        for(int j = 1; j <= 24; ++j){
+            if(buffer.at(i - 1).at(j - 1).desc == "NAN" || buffer.at(i - 1).at(j - 1).desc == "UNUSED") continue;
+            pair<int, int> location = findContainer(buffer.at(i - 1).at(j - 1), goalState);
+            hn += ((9 - location.first) + (location.second - 1) + 4 + (4 - i) + (24 - j));
+        }
+    }
+
     return hn;
 }
 
