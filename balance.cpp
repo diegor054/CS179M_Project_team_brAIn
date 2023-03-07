@@ -887,7 +887,8 @@ pair<node*, int> general_search(vector<vector<container> >& containers) {
     nodes.push(initial_state);
     unsigned max_queue_size = 1;
     unsigned nodes_expanded = 0;
-    map<string, bool> explored_states;
+    map<string, bool> added_states;
+    added_states[initial_state->to_string()] = true;
     while(true) {
         if (nodes.empty()) {
             cout << "Ship could not be balanced. Beginning SIFT operation." << endl;
@@ -897,9 +898,10 @@ pair<node*, int> general_search(vector<vector<container> >& containers) {
         //if (nodes.size() > max_queue_size) {
         //    max_queue_size = nodes.size();
         //}
+        cout << nodes.size() << '\n';
         node* curr_state = nodes.top();
         nodes.pop();
-        //printShip(curr_state->containers, curr_state->buffer); //DEBUG REMOVE LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        printShip(curr_state->containers, curr_state->buffer, 0); //DEBUG REMOVE LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         //cout << "The best state to expand with a g(n) = " << curr_state.get_gn() << " and h(n) = " << curr_state.get_hn() << " is..." << endl;
         if (isGoalState(curr_state->containers, curr_state->buffer)) {
             cout << "\nGoal state!\n" << endl;
@@ -920,15 +922,15 @@ pair<node*, int> general_search(vector<vector<container> >& containers) {
             }
             return pair<node*, int> (temp, curr_state->totalTime);
         }
-        vector<node*> new_nodes = expand(curr_state, nodes, explored_states);
+        vector<node*> new_nodes = expand(curr_state, nodes, added_states);
         a_star_search(nodes, new_nodes);
         ++nodes_expanded;
     }
 }
 
-vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, CompareNode>& nodes, map<string, bool>& explored_states) {
+vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, CompareNode>& nodes, map<string, bool>& added_states) {
     vector<node*> new_nodes;
-    explored_states[curr_state->to_string()] = true;
+    //explored_states[curr_state->to_string()] = true;
     int right_heavier = 6 * (right_mass(curr_state->containers) > left_mass(curr_state->containers));
     for (int i = 1 + right_heavier; i < 7 + right_heavier; ++i)
     {
@@ -960,7 +962,8 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
             new_node_ship->cranePosY = new_cell_row;
 	        new_node_ship->cranePosX = j;
             new_node_ship->animationMessage += "SHIP {" + to_string(new_cell_row) + "," + to_string(j) + "}";
-            if (explored_states[new_node_ship->to_string()] == false) {
+            if (added_states[new_node_ship->to_string()] == false) {
+                added_states[new_node_ship->to_string()] = true;
                 new_nodes.push_back(new_node_ship);
                 nodesCreated++;
             }
@@ -978,7 +981,8 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
 	        new_node->cranePosX = -1 * closestBufferColumn;
             new_node->animationMessage += "BUFFER {" + to_string(closestBufferRow) + "," + to_string(closestBufferColumn) + "}";
         }
-        if (explored_states[new_node->to_string()] == false) {
+        if (added_states[new_node->to_string()] == false) {
+            added_states[new_node->to_string()] = true;
             new_nodes.push_back(new_node);
             nodesCreated++;
         }
@@ -1008,7 +1012,8 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
                 new_node_ship->cranePosY = cell_row;
 	            new_node_ship->cranePosX = j;
                 new_node_ship->animationMessage += "SHIP {" + to_string(cell_row) + "," + to_string(j) + "}";
-                if (explored_states[new_node_ship->to_string()] == false) {
+                if (added_states[new_node_ship->to_string()] == false) {
+                    added_states[new_node_ship->to_string()] = true;
                     new_nodes.push_back(new_node_ship);
                 }
             }
