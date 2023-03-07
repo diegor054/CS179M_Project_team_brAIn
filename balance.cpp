@@ -62,7 +62,7 @@ int top_container_buffer(vector<vector<container> >& , int);
 int top_container_between(vector<vector<container> >&, int, int);
 int top_container_buffer_between(vector<vector<container> >&, int, int);
 void a_star_search(priority_queue<node*, vector<node*>, CompareNode>&, vector<node*>&);
-int balance_heuristic(vector<vector<container> >&);
+int balance_heuristic(vector<vector<container> >&, vector<vector<container> >&);
 
 
 struct container {
@@ -883,7 +883,7 @@ pair<node*, int> general_search(vector<vector<container> >& containers) {
     priority_queue<node*, vector<node*>, CompareNode> nodes;
     node *initial_state = new node(containers);
     initial_state->set_gn(0);
-    initial_state->set_hn(balance_heuristic(initial_state->containers));
+    initial_state->set_hn(balance_heuristic(initial_state->containers, initial_state->buffer));
     nodes.push(initial_state);
     unsigned max_queue_size = 1;
     unsigned nodes_expanded = 0;
@@ -1134,21 +1134,26 @@ int top_container_buffer_between(vector<vector<container> >& buffer, int column1
 void a_star_search(priority_queue<node*, vector<node*>, CompareNode>& nodes, vector<node*>& new_nodes) {
     for (unsigned i = 0; i < new_nodes.size(); ++i) {
         new_nodes[i]->set_gn(new_nodes[i]->totalTime);
-        new_nodes[i]->set_hn(balance_heuristic(new_nodes[i]->containers));
+        new_nodes[i]->set_hn(balance_heuristic(new_nodes[i]->containers, new_nodes[i]->buffer));
         nodes.push(new_nodes[i]);
     }
 }
 
-int balance_heuristic(vector<vector<container> >& containers) {
+int balance_heuristic(vector<vector<container> >& containers, vector<vector<container> >& buffer) {
     int heavier_side_weight = left_mass(containers);
     int lighter_side_weight = right_mass(containers);
     if (lighter_side_weight > heavier_side_weight) {
         swap(lighter_side_weight, heavier_side_weight);
     }
     int hn_weight = heavier_side_weight * 0.9 - lighter_side_weight;
+    int buffer_weight = 0;
+    for (int i = 1; i <= 4; ++i) {
+        for (int j = 1; j <= 24; ++j) {
+            buffer_weight += buffer.at(i - 1).at(j - 1).weight;
+        }
+    }
+    return hn_weight + buffer_weight * 0.5;
     //( (heavier_side_weight - lighter_side_weight) / (heavier_side_weight + lighter_side_weight)) * 10 + totalTime
-
-    return hn_weight;
 }
 
 
