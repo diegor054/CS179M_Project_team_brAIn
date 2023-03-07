@@ -892,9 +892,8 @@ pair<node*, int> general_search(vector<vector<container> >& containers) {
     while(true) {
         if (nodes.empty()) {
             cout << "Ship could not be balanced. Beginning SIFT operation." << endl;
-            sift(containers);
+            return sift(containers);
             cout << "SIFT operation complete" << endl;
-            return pair<node*, int>(nullptr, -1);
         }
         //if (nodes.size() > max_queue_size) {
         //    max_queue_size = nodes.size();
@@ -972,7 +971,7 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
             int closestBufferColumn = bp.first;
             int closestBufferRow = top_container_buffer(new_node->buffer, closestBufferColumn) + 1;
             new_node->totalTime += bp.second;
-            printShip(new_node->containers, new_node->buffer, 0);
+            //printShip(new_node->containers, new_node->buffer, 0);
             container temp = new_node->containers.at(curr_cell_row - 1).at(i - 1);
             new_node->containers.at(curr_cell_row - 1).at(i - 1) = new_node->buffer.at(closestBufferRow - 1).at(closestBufferColumn - 1);
             new_node->buffer.at(closestBufferRow - 1).at(closestBufferColumn - 1) = temp;
