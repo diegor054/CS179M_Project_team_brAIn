@@ -118,12 +118,52 @@ struct node {
     void set_hn(int h) {hn = h;}
     string to_string() {
         string n;
-        for (const auto& row : containers)
-            for (const auto& elem : row)
-                n += (std::to_string(elem.weight) + ",");
-        for (const auto& row : buffer)
-            for (const auto& elem : row)
-                n += (std::to_string(elem.weight) + ",");
+        string prev = "\0", curr;
+        int count = 0;
+        for (const auto& row : containers) {
+            for (const auto& elem : row) {
+                curr = std::to_string(elem.weight);
+                if (count == 0) {
+                    n += curr;
+                    ++count;
+                    prev = curr;
+                    continue;
+                }
+                if (curr == prev) {
+                    ++count;
+                }
+                else {
+                    if (count != 1) {
+                        n += "." + std::to_string(count);
+                    }
+                    n += ",";
+                    count = 0;
+                }
+                prev = curr;
+            }
+        }
+        for (const auto& row : buffer) {
+            for (const auto& elem : row) {
+                curr = std::to_string(elem.weight);
+                if (count == 0) {
+                    n += curr;
+                    ++count;
+                    prev = curr;
+                    continue;
+                }
+                if (curr == prev) {
+                    ++count;
+                }
+                else {
+                    if (count != 1) {
+                        n += "." + std::to_string(count);
+                    }
+                    n += ",";
+                    count = 0;
+                }
+                prev = curr;
+            }
+        }
         return n;
     }
 };
@@ -898,10 +938,10 @@ pair<node*, int> general_search(vector<vector<container> >& containers) {
         //if (nodes.size() > max_queue_size) {
         //    max_queue_size = nodes.size();
         //}
-        cout << nodes.size() << '\n';
+        //cout << added_states.size() << '\n'; //debug
         node* curr_state = nodes.top();
         nodes.pop();
-        printShip(curr_state->containers, curr_state->buffer, 0); //DEBUG REMOVE LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //printShip(curr_state->containers, curr_state->buffer, 0); //DEBUG REMOVE LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         //cout << "The best state to expand with a g(n) = " << curr_state.get_gn() << " and h(n) = " << curr_state.get_hn() << " is..." << endl;
         if (isGoalState(curr_state->containers, curr_state->buffer)) {
             cout << "\nGoal state!\n" << endl;
