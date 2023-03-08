@@ -119,51 +119,52 @@ struct node {
     string to_string() {
         string n;
         string prev = "\0", curr;
-        int count = 0;
+        int count = 1;
         for (const auto& row : containers) {
             for (const auto& elem : row) {
                 curr = std::to_string(elem.weight);
-                if (count == 0) {
-                    n += curr;
-                    ++count;
-                    prev = curr;
-                    continue;
-                }
-                if (curr == prev) {
-                    ++count;
-                }
-                else {
-                    if (count != 1) {
+                if (curr != prev) {
+                    if (count > 1) {
                         n += "." + std::to_string(count);
                     }
-                    n += ",";
-                    count = 0;
+                    if (prev != "\0") {
+                        n += ",";
+                    }
+                    n += curr;
+                    count = 1;
+                }
+                else {
+                    ++count;
                 }
                 prev = curr;
             }
         }
+        if (count > 1) {
+            n += "." + std::to_string(count);
+        }
+        count = 1;
+        prev = "\0";
         for (const auto& row : buffer) {
             for (const auto& elem : row) {
                 curr = std::to_string(elem.weight);
-                if (count == 0) {
-                    n += curr;
-                    ++count;
-                    prev = curr;
-                    continue;
-                }
-                if (curr == prev) {
-                    ++count;
-                }
-                else {
-                    if (count != 1) {
+                if (curr != prev) {
+                    if (count > 1) {
                         n += "." + std::to_string(count);
                     }
                     n += ",";
-                    count = 0;
+                    n += curr;
+                    count = 1;
+                }
+                else {
+                    ++count;
                 }
                 prev = curr;
             }
         }
+        if (count > 1) {
+            n += "." + std::to_string(count);
+        }
+        cout << n << '\n';
         return n;
     }
 };
