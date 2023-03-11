@@ -164,7 +164,7 @@ struct node {
         if (count > 1) {
             n += "." + std::to_string(count);
         }
-        cout << n << '\n';
+        //cout << n << '\n';
         return n;
     }
 };
@@ -939,7 +939,7 @@ pair<node*, int> general_search(vector<vector<container> >& containers) {
         //if (nodes.size() > max_queue_size) {
         //    max_queue_size = nodes.size();
         //}
-        //cout << added_states.size() << '\n'; //debug
+        cout << added_states.size() << '\n'; //debug
         node* curr_state = nodes.top();
         nodes.pop();
         //printShip(curr_state->containers, curr_state->buffer, 0); //DEBUG REMOVE LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -989,6 +989,9 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
         int curr_cell_row = top_container(new_node->containers,i);
         new_node->animationMessage = "Moving SHIP {" + to_string(curr_cell_row) + "," + to_string(i) + "} " + new_node->containers.at(curr_cell_row - 1).at(i - 1).desc + " to ";   
         new_node->totalTime += (abs(highest_container_crane_pass - new_node->cranePosY + 1)) + abs(new_node->cranePosX - i) + (highest_container_crane_pass - curr_cell_row);
+        new_node->animationMessage += to_string(highest_container_crane_pass - new_node->cranePosY + 1) + "_"; //debug
+        new_node->animationMessage += to_string(new_node->cranePosX - i) + "_"; //debug
+        new_node->animationMessage += to_string(highest_container_crane_pass - curr_cell_row) + "_"; //debug
         //
         for(int j = 1; j <= columns; ++j){
             node *new_node_ship = new node(new_node);
@@ -996,6 +999,9 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
             if(j == i) continue;  //moving in the same row, basically moving no where
             int highest_container = top_container_between(new_node_ship->containers, i, j);
             new_node_ship->totalTime += (highest_container - top_container(new_node_ship->containers, i) + 1) + abs(j - i) + (highest_container - top_container(new_node_ship->containers, j));
+            new_node_ship->animationMessage += to_string(highest_container - top_container(new_node_ship->containers, i) + 1) + "_"; //debug
+            new_node_ship->animationMessage += to_string(j - i) + "_"; //debug
+            new_node_ship->animationMessage += to_string(highest_container - top_container(new_node_ship->containers, j)) + "_"; //debug
             int new_cell_row = top_container(new_node_ship->containers, j) + 1;
             container temp = new_node_ship->containers.at(curr_cell_row - 1).at(i - 1);
             new_node_ship->containers.at(curr_cell_row - 1).at(i - 1) = new_node_ship->containers.at(new_cell_row - 1).at(j - 1);
