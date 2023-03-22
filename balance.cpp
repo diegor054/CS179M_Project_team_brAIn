@@ -1067,7 +1067,11 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
                 node *new_node_ship = new node(new_node);
                 if (top_container(new_node_ship->containers, j) == rows) continue; //cannot put container in full column
                 int cell_row = top_container(new_node_ship->containers, j) + 1;
-                new_node_ship->totalTime += ((abs(((abs(new_node_ship->cranePosY)) - curr_cell_row)) + abs(((abs(new_node_ship->cranePosX)) - i))) + (((5 - curr_cell_row) + (24 - i))) + 4 + (((9 - cell_row) + (j - 1))));
+                int timeContainerBuffer = (5 - curr_cell_row) + (24 - i);
+                int timeContainerBtoS = 4;
+                int timeContainerShip = (9 - cell_row) + (j - 1);
+                new_node_ship->totalTime += timeContainerBuffer + timeContainerBtoS + timeContainerShip;
+                //new_node_ship->totalTime += (abs(abs(new_node_ship->cranePosY) - curr_cell_row) + abs((abs(new_node_ship->cranePosX)) - i)); //Don't know why this was here
                 container temp = new_node_ship->buffer.at(curr_cell_row - 1).at(i - 1);
                 new_node_ship->buffer.at(curr_cell_row - 1).at(i - 1) = new_node_ship->containers.at(cell_row - 1).at(j - 1);
                 new_node_ship->containers.at(cell_row - 1).at(j - 1) = temp;
