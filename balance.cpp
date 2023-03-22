@@ -1052,11 +1052,17 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
                 new_node->cranePosY = -5;
                 new_node->cranePosX = -24;
             }
-            int highest_container_crane_pass = top_container_buffer_between(new_node->buffer, i, abs(new_node->cranePosX));
-            int curr_cell_row = top_container_buffer(new_node->buffer,i);
-            new_node->animationMessage = "Moving BUFFER {" + to_string(curr_cell_row) + "," + to_string(i) + "} " + new_node->buffer.at(curr_cell_row - 1).at(i - 1).desc + " to ";   
-            new_node->totalTime += (abs(highest_container_crane_pass - abs(new_node->cranePosY) + 1)) + abs(abs(new_node->cranePosX) - i) + (highest_container_crane_pass - curr_cell_row);
-            
+            int adjustment = 0;
+            if (i != abs(new_node->cranePosX)) adjustment = (i > abs(new_node->cranePosX)) ? -1 : 1;
+            int highest_container_crane_pass = top_container_buffer_between(new_node->buffer, i + adjustment, abs(new_node->cranePosX) + ((abs(i - abs(new_node->cranePosX)) > 1) ? -1 * adjustment : 0));
+            int curr_cell_row = top_container_buffer(new_node->buffer, i);
+            new_node->animationMessage = "Moving BUFFER {" + to_string(curr_cell_row) + "," + to_string(i) + "} " + new_node->buffer.at(curr_cell_row - 1).at(i - 1).desc + " to ";
+
+            int timeCraneUp = (highest_container_crane_pass >= abs(new_node->cranePosY)) ? highest_container_crane_pass - abs(new_node->cranePosY) + 1 : 0;
+            int timeCraneHoriz = abs(abs(new_node->cranePosX) - i);
+            int timeCraneDown = (highest_container_crane_pass >= abs(new_node->cranePosY)) ? highest_container_crane_pass - curr_cell_row : abs(new_node->cranePosY) - curr_cell_row;
+            new_node->totalTime += timeCraneUp + timeCraneHoriz + timeCraneDown;
+
             for(int j = 1; j <= columns; ++j){
                 node *new_node_ship = new node(new_node);
                 if (top_container(new_node_ship->containers, j) == rows) continue; //cannot put container in full column
