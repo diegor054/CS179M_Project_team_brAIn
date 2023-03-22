@@ -985,13 +985,18 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
             new_node->cranePosX = 1;
         }
         //
-        int highest_container_crane_pass = top_container_between(new_node->containers, i, new_node->cranePosX);
+        int adjustment = 0;
+        if (i != new_node->cranePosX) adjustment = (i > new_node->cranePosX) ? -1 : 1;
+        int highest_container_crane_pass = top_container_between(new_node->containers, i + adjustment, new_node->cranePosX + ((abs(i - new_node->cranePosX) > 1) ? -1 * adjustment : 0));
         int curr_cell_row = top_container(new_node->containers,i);
         new_node->animationMessage = "Moving SHIP {" + to_string(curr_cell_row) + "," + to_string(i) + "} " + new_node->containers.at(curr_cell_row - 1).at(i - 1).desc + " to ";   
-        new_node->totalTime += (abs(highest_container_crane_pass - new_node->cranePosY + 1)) + abs(new_node->cranePosX - i) + (highest_container_crane_pass - curr_cell_row);
-        new_node->animationMessage += to_string(highest_container_crane_pass - new_node->cranePosY + 1) + "_"; //debug
-        new_node->animationMessage += to_string(new_node->cranePosX - i) + "_"; //debug
-        new_node->animationMessage += to_string(highest_container_crane_pass - curr_cell_row) + "_"; //debug
+        int timeCraneUp = (highest_container_crane_pass >= new_node->cranePosY) ? highest_container_crane_pass - new_node->cranePosY + 1 : 0;
+        int timeCraneHoriz = abs(new_node->cranePosX - i);
+        int timeCraneDown = (highest_container_crane_pass >= new_node->cranePosY) ? highest_container_crane_pass - curr_cell_row : new_node->cranePosY - curr_cell_row;
+        new_node->totalTime += timeCraneUp + timeCraneHoriz + timeCraneDown;
+        new_node->animationMessage += to_string(timeCraneUp) + "_"; //debug
+        new_node->animationMessage += to_string(timeCraneHoriz) + "_"; //debug
+        new_node->animationMessage += to_string(timeCraneDown) + "_"; //debug
         //
         for(int j = 1; j <= columns; ++j){
             node *new_node_ship = new node(new_node);
