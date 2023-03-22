@@ -1002,11 +1002,15 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
             node *new_node_ship = new node(new_node);
             if (top_container(new_node_ship->containers, j) == rows) continue; //cannot put container in full column
             if(j == i) continue;  //moving in the same row, basically moving no where
-            int highest_container = top_container_between(new_node_ship->containers, i, j);
-            new_node_ship->totalTime += (highest_container - top_container(new_node_ship->containers, i) + 1) + abs(j - i) + (highest_container - top_container(new_node_ship->containers, j));
-            new_node_ship->animationMessage += to_string(highest_container - top_container(new_node_ship->containers, i) + 1) + "_"; //debug
-            new_node_ship->animationMessage += to_string(j - i) + "_"; //debug
-            new_node_ship->animationMessage += to_string(highest_container - top_container(new_node_ship->containers, j)) + "_"; //debug
+            adjustment = (j > i) ? -1 : 1;
+            int highest_container = top_container_between(new_node_ship->containers, j + adjustment, i + ((abs(j - i) > 1) ? -1 * adjustment : 0));
+            int timeContainerUp = (highest_container >= top_container(new_node_ship->containers, i)) ? highest_container - top_container(new_node_ship->containers, i) + 1 : 0;
+            int timeContainerHoriz = abs(j - i);
+            int timeContainerDown = (highest_container >= top_container(new_node_ship->containers, i)) ? highest_container - top_container(new_node_ship->containers, j) : top_container(new_node_ship->containers, i) - top_container(new_node_ship->containers, j) - 1;
+            new_node_ship->totalTime += timeContainerUp + timeContainerHoriz + timeContainerDown;
+            new_node_ship->animationMessage += to_string(timeContainerUp) + "_"; //debug
+            new_node_ship->animationMessage += to_string(timeContainerHoriz) + "_"; //debug
+            new_node_ship->animationMessage += to_string(timeContainerDown) + "_"; //debug
             int new_cell_row = top_container(new_node_ship->containers, j) + 1;
             container temp = new_node_ship->containers.at(curr_cell_row - 1).at(i - 1);
             new_node_ship->containers.at(curr_cell_row - 1).at(i - 1) = new_node_ship->containers.at(new_cell_row - 1).at(j - 1);
@@ -1048,11 +1052,17 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
                 new_node->cranePosY = -5;
                 new_node->cranePosX = -24;
             }
-            int highest_container_crane_pass = top_container_buffer_between(new_node->buffer, i, abs(new_node->cranePosX));
-            int curr_cell_row = top_container_buffer(new_node->buffer,i);
-            new_node->animationMessage = "Moving BUFFER {" + to_string(curr_cell_row) + "," + to_string(i) + "} " + new_node->buffer.at(curr_cell_row - 1).at(i - 1).desc + " to ";   
-            new_node->totalTime += (abs(highest_container_crane_pass - abs(new_node->cranePosY) + 1)) + abs(abs(new_node->cranePosX) - i) + (highest_container_crane_pass - curr_cell_row);
-            
+            int adjustment = 0;
+            if (i != abs(new_node->cranePosX)) adjustment = (i > abs(new_node->cranePosX)) ? -1 : 1;
+            int highest_container_crane_pass = top_container_buffer_between(new_node->buffer, i + adjustment, abs(new_node->cranePosX) + ((abs(i - abs(new_node->cranePosX)) > 1) ? -1 * adjustment : 0));
+            int curr_cell_row = top_container_buffer(new_node->buffer, i);
+            new_node->animationMessage = "Moving BUFFER {" + to_string(curr_cell_row) + "," + to_string(i) + "} " + new_node->buffer.at(curr_cell_row - 1).at(i - 1).desc + " to ";
+
+            int timeCraneUp = (highest_container_crane_pass >= abs(new_node->cranePosY)) ? highest_container_crane_pass - abs(new_node->cranePosY) + 1 : 0;
+            int timeCraneHoriz = abs(abs(new_node->cranePosX) - i);
+            int timeCraneDown = (highest_container_crane_pass >= abs(new_node->cranePosY)) ? highest_container_crane_pass - curr_cell_row : abs(new_node->cranePosY) - curr_cell_row;
+            new_node->totalTime += timeCraneUp + timeCraneHoriz + timeCraneDown;
+
             for(int j = 1; j <= columns; ++j){
                 node *new_node_ship = new node(new_node);
                 if (top_container(new_node_ship->containers, j) == rows) continue; //cannot put container in full column
