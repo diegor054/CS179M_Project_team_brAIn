@@ -996,9 +996,9 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
         int timeCraneHoriz = abs(new_node->cranePosX - i);
         int timeCraneDown = (highest_container_crane_pass >= new_node->cranePosY) ? highest_container_crane_pass - curr_cell_row : abs(new_node->cranePosY - curr_cell_row);
         new_node->totalTime += timeCraneUp + timeCraneHoriz + timeCraneDown;
-        //new_node->animationMessage += to_string(timeCraneUp) + "_"; //debug
-        //new_node->animationMessage += to_string(timeCraneHoriz) + "_"; //debug
-        //new_node->animationMessage += to_string(timeCraneDown) + "_"; //debug
+        //new_node->animationMessage += to_string(timeCraneUp) + "_"; //debug totalTime
+        //new_node->animationMessage += to_string(timeCraneHoriz) + "_"; //debug totalTime
+        //new_node->animationMessage += to_string(timeCraneDown) + "_"; //debug totalTime
         //
         for(int j = 1; j <= columns; ++j){
             node *new_node_ship = new node(new_node);
@@ -1012,9 +1012,9 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
             int timeContainerHoriz = abs(j - i);
             int timeContainerDown = (highest_container >= top_container(new_node_ship->containers, i)) ? highest_container - top_container(new_node_ship->containers, j) : abs(top_container(new_node_ship->containers, i) - top_container(new_node_ship->containers, j) - 1);
             new_node_ship->totalTime += timeContainerUp + timeContainerHoriz + timeContainerDown;
-            //new_node_ship->animationMessage += to_string(timeContainerUp) + "_"; //debug
-            //new_node_ship->animationMessage += to_string(timeContainerHoriz) + "_"; //debug
-            //new_node_ship->animationMessage += to_string(timeContainerDown) + "_"; //debug
+            //new_node_ship->animationMessage += to_string(timeContainerUp) + "_"; //debug totalTime
+            //new_node_ship->animationMessage += to_string(timeContainerHoriz) + "_"; //debug totalTime
+            //new_node_ship->animationMessage += to_string(timeContainerDown) + "_"; //debug totalTime
             int new_cell_row = top_container(new_node_ship->containers, j) + 1;
             container temp = new_node_ship->containers.at(curr_cell_row - 1).at(i - 1);
             new_node_ship->containers.at(curr_cell_row - 1).at(i - 1) = new_node_ship->containers.at(new_cell_row - 1).at(j - 1);
@@ -1032,7 +1032,11 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
             pair<int, int> bp = findNearestBufferColumn(new_node->buffer);
             int closestBufferColumn = bp.first;
             int closestBufferRow = top_container_buffer(new_node->buffer, closestBufferColumn) + 1;
-            new_node->totalTime += bp.second;
+            int timeShipToPink = (9 - curr_cell_row) + (i - 1);
+            int timePinkToBuffer = bp.second;
+            new_node->totalTime += timeShipToPink + timePinkToBuffer;
+            //new_node->animationMessage += to_string(timeShipToPink) + "!"; //debug totalTime
+            //new_node->animationMessage += to_string(timePinkToBuffer) + "!"; //debug totalTime
             //printShip(new_node->containers, new_node->buffer, 0);
             container temp = new_node->containers.at(curr_cell_row - 1).at(i - 1);
             new_node->containers.at(curr_cell_row - 1).at(i - 1) = new_node->buffer.at(closestBufferRow - 1).at(closestBufferColumn - 1);
@@ -1068,6 +1072,9 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
             int timeCraneHoriz = abs(abs(new_node->cranePosX) - i);
             int timeCraneDown = (highest_container_crane_pass >= abs(new_node->cranePosY)) ? highest_container_crane_pass - curr_cell_row : abs(abs(new_node->cranePosY) - curr_cell_row);
             new_node->totalTime += timeCraneUp + timeCraneHoriz + timeCraneDown;
+            //new_node->animationMessage += to_string(timeCraneUp) + "|"; //debug totalTime
+            //new_node->animationMessage += to_string(timeCraneHoriz) + "|"; //debug totalTime
+            //new_node->animationMessage += to_string(timeCraneDown) + "|"; //debug totalTime
 
             for(int j = 1; j <= columns; ++j){
                 node *new_node_ship = new node(new_node);
@@ -1077,6 +1084,9 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
                 int timeContainerBtoS = 4;
                 int timeContainerShip = (9 - cell_row) + (j - 1);
                 new_node_ship->totalTime += timeContainerBuffer + timeContainerBtoS + timeContainerShip;
+                //new_node_ship->animationMessage += to_string(timeContainerBuffer) + "|"; //debug totalTime
+                //new_node_ship->animationMessage += to_string(timeContainerBtoS) + "|"; //debug totalTime
+                //new_node_ship->animationMessage += to_string(timeContainerShip) + "|"; //debug totalTime
                 //new_node_ship->totalTime += (abs(abs(new_node_ship->cranePosY) - curr_cell_row) + abs((abs(new_node_ship->cranePosX)) - i)); //Don't know why this was here
                 container temp = new_node_ship->buffer.at(curr_cell_row - 1).at(i - 1);
                 new_node_ship->buffer.at(curr_cell_row - 1).at(i - 1) = new_node_ship->containers.at(cell_row - 1).at(j - 1);
