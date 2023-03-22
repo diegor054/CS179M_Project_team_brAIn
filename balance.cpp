@@ -987,7 +987,9 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
         //
         int adjustment = 0;
         if (i != new_node->cranePosX) adjustment = (i > new_node->cranePosX) ? -1 : 1;
-        int highest_container_crane_pass = top_container_between(new_node->containers, i + adjustment, new_node->cranePosX + ((abs(i - new_node->cranePosX) > 1) ? -1 * adjustment : 0));
+        int highest_container_crane_pass;
+        if (abs(i - new_node->cranePosX) > 1) highest_container_crane_pass = top_container_between(new_node->containers, i + adjustment, new_node->cranePosX - adjustment);
+        else highest_container_crane_pass = 0;
         int curr_cell_row = top_container(new_node->containers,i);
         new_node->animationMessage = "Moving SHIP {" + to_string(curr_cell_row) + "," + to_string(i) + "} " + new_node->containers.at(curr_cell_row - 1).at(i - 1).desc + " to ";   
         int timeCraneUp = (highest_container_crane_pass >= new_node->cranePosY) ? highest_container_crane_pass - new_node->cranePosY + 1 : 0;
@@ -1003,7 +1005,9 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
             if (top_container(new_node_ship->containers, j) == rows) continue; //cannot put container in full column
             if(j == i) continue;  //moving in the same row, basically moving no where
             adjustment = (j > i) ? -1 : 1;
-            int highest_container = top_container_between(new_node_ship->containers, j + adjustment, i + ((abs(j - i) > 1) ? -1 * adjustment : 0));
+            int highest_container;
+            if (abs(j - i) > 1) highest_container = top_container_between(new_node_ship->containers, j + adjustment, i - adjustment);
+            else highest_container = 0;
             int timeContainerUp = (highest_container >= top_container(new_node_ship->containers, i)) ? highest_container - top_container(new_node_ship->containers, i) + 1 : 0;
             int timeContainerHoriz = abs(j - i);
             int timeContainerDown = (highest_container >= top_container(new_node_ship->containers, i)) ? highest_container - top_container(new_node_ship->containers, j) : abs(top_container(new_node_ship->containers, i) - top_container(new_node_ship->containers, j) - 1);
@@ -1054,7 +1058,9 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
             }
             int adjustment = 0;
             if (i != abs(new_node->cranePosX)) adjustment = (i > abs(new_node->cranePosX)) ? -1 : 1;
-            int highest_container_crane_pass = top_container_buffer_between(new_node->buffer, i + adjustment, abs(new_node->cranePosX) + ((abs(i - abs(new_node->cranePosX)) > 1) ? -1 * adjustment : 0));
+            int highest_container_crane_pass;
+            if (abs(i - abs(new_node->cranePosX)) > 1) highest_container_crane_pass = top_container_buffer_between(new_node->buffer, i + adjustment, abs(new_node->cranePosX) - adjustment);
+            else highest_container_crane_pass = 0;
             int curr_cell_row = top_container_buffer(new_node->buffer, i);
             new_node->animationMessage = "Moving BUFFER {" + to_string(curr_cell_row) + "," + to_string(i) + "} " + new_node->buffer.at(curr_cell_row - 1).at(i - 1).desc + " to ";
 
