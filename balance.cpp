@@ -1009,6 +1009,10 @@ pair<node*, int> general_search(vector<vector<container> >& containers) {
         //    max_queue_size = nodes.size();
         //}
         //cout << added_states.size() << '\n'; //debug
+        if (nodes.empty()) {
+            cout << "ERROR: BALANCE operation failed" << endl;
+            return pair<node*, int>(nullptr, -1);
+        }
         node* curr_state = nodes.top();
         nodes.pop();
         //printShip(curr_state->containers, curr_state->buffer, 0); //DEBUG REMOVE LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
