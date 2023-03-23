@@ -53,6 +53,7 @@ vector<vector<container>> siftGoalState(vector<vector<container> >&);
 bool isSiftGoalState(const vector<vector<container> >&, const vector<vector<container> >&, const vector<vector<container> >&);
 void sift_a_star_search(priority_queue<node*, vector<node*>, CompareNode>&, vector<node*>&, vector<vector<container>> &);
 int sift_Heuristic(vector<vector<container>> &, vector<vector<container>> &, vector<vector<container>> &);
+bool siftNeeded(vector<vector<container>>& );
 pair<int, int> findContainer(container &, vector<vector<container>> &);
 vector<node*> expand(node*, priority_queue<node*, vector<node*>, CompareNode>&, map<string, bool>&);
 pair<int,int> find_nearest_column(vector<vector<container> >&, int);
@@ -909,6 +910,64 @@ int sift_Heuristic(vector<vector<container>> &containers, vector<vector<containe
     return hn;
 }
 
+bool siftNeeded(vector<vector<container>>& containers){
+    vector<int> weights;
+    sort(weights.begin(), weights.end());
+    for(int i = 0; i < rows; i++){
+        for(int j = 0; j < columns; j++){
+            if(containers.at(i).at(j).weight != 0){
+                weights.push_back(containers.at(i).at(j).weight);
+            }
+        }
+    }
+    vector<vector<int>> results;
+    int totalWeights = 0;
+    //sort here
+    for(int i = 0; i < weights.size(); i++){
+        totalWeights += weights.at(i);
+    }
+
+    //make vector full of zeros
+    vector<int> first_elements;
+    for(int i = 0; i <= weights.size(); i++){
+        first_elements.push_back(0);
+    }
+    //push back zero arrays to create matrix of dp vector
+    for(int i = 0; i <= weights.size(); i++){
+        results.push_back(first_elements);
+    }
+    //set first index of each useful row to weights ()
+    for(int i = 1; i <= weights.size(); i++){
+        results.at(i).at(0) = weights.at(i - 1);
+    }
+
+    //set matrix and see if any combinations allow it to be balanced
+    for(int i = 1; i <= weights.size(); i++){
+        for(int j = 1; j <= weights.size(); j++){
+            results.at(i).at(j) = results.at(i-1).at(j-1) + weights.at(i - 1);
+            int currWeight = results.at(i-1).at(j-1) + weights.at(i - 1);
+            double weightLeft = (totalWeights - currWeight);
+            double currMoreLimit = (currWeight - (currWeight * 0.1));
+            double currLessLimit = weightLeft - (weightLeft * 0.1);
+            if((weightLeft >= currMoreLimit && weightLeft <= currWeight) || (currWeight >= currLessLimit && currWeight <= weightLeft)){
+                return false;  //within 10% so can be balanced
+            } 
+        }
+    }
+    /*
+    //delete later. print out matrix just to visualize
+    for(int i = 0; i < results.size(); ++i){
+        for(int j = 0; j < results.at(i).size(); j++){
+            cout<< results.at(i).at(j) << " ";
+        }
+        cout << endl;
+    }
+    cout << endl;
+    */
+
+    return true;   //if no cannot be within 10% then return true meaning it needs sift
+}
+
 pair<int, int> findContainer(container &c, vector<vector<container>> &containers){
     for(int i = 1; i <= rows; ++i){
         for(int j = 1; j <= columns; ++j){
@@ -930,12 +989,21 @@ pair<node*, int> general_search(vector<vector<container> >& containers) {
     unsigned nodes_expanded = 0;
     map<string, bool> added_states;
     added_states[initial_state->to_string()] = true;
+    bool needsSift = siftNeeded(containers);
+    if (needsSift) {
+        cout << "Ship could not be balanced. Beginning SIFT operation." << endl;
+        return sift(containers);
+        cout << "SIFT operation complete" << endl;
+    }
+
     while(true) {
+        /*
         if (nodes.empty()) {
             cout << "Ship could not be balanced. Beginning SIFT operation." << endl;
             return sift(containers);
             cout << "SIFT operation complete" << endl;
         }
+        */
         //if (nodes.size() > max_queue_size) {
         //    max_queue_size = nodes.size();
         //}
