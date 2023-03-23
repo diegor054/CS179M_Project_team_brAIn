@@ -912,7 +912,7 @@ int sift_Heuristic(vector<vector<container>> &containers, vector<vector<containe
 
 bool siftNeeded(vector<vector<container>>& containers){
     vector<int> weights;
-    sort(weights.begin(), weights.end());
+    //sort(weights.begin(), weights.end());
     for(int i = 0; i < rows; i++){
         for(int j = 0; j < columns; j++){
             if(containers.at(i).at(j).weight != 0){
@@ -920,6 +920,7 @@ bool siftNeeded(vector<vector<container>>& containers){
             }
         }
     }
+     sort(weights.begin(), weights.end());
     vector<vector<int>> results;
     int totalWeights = 0;
     //sort here
