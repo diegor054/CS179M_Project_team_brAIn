@@ -1067,7 +1067,7 @@ vector<node*> expand(node* curr_state, priority_queue<node*, vector<node*>, Comp
         new_node->animationMessage = "Moving SHIP {" + to_string(curr_cell_row) + "," + to_string(i) + "} " + new_node->containers.at(curr_cell_row - 1).at(i - 1).desc + " to ";   
         int timeCraneUp = (highest_container_crane_pass >= new_node->cranePosY) ? highest_container_crane_pass - new_node->cranePosY + 1 : 0;
         int timeCraneHoriz = abs(new_node->cranePosX - i);
-        int timeCraneDown = (highest_container_crane_pass >= new_node->cranePosY) ? highest_container_crane_pass - curr_cell_row : abs(new_node->cranePosY - curr_cell_row);
+        int timeCraneDown = (highest_container_crane_pass >= new_node->cranePosY) ? highest_container_crane_pass - curr_cell_row + 1 : abs(new_node->cranePosY - curr_cell_row);
         new_node->totalTime += timeCraneUp + timeCraneHoriz + timeCraneDown;
         //new_node->animationMessage += to_string(timeCraneUp) + "_"; //debug totalTime
         //new_node->animationMessage += to_string(timeCraneHoriz) + "_"; //debug totalTime
